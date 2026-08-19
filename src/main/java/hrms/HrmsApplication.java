@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import hrms.hrms.entity.City;
 import hrms.hrms.entity.JobPosition;
@@ -16,6 +17,7 @@ import hrms.hrms.repository.CityDao;
 import hrms.hrms.repository.JobPositionDao;
 
 @SpringBootApplication
+@EnableAsync
 public class HrmsApplication {
 
 	public static void main(String[] args) {

@@ -1,11 +1,14 @@
 package hrms.hrms.core.services;
 
+import java.util.Properties;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +20,20 @@ public class EmailManager implements EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    @Value("${app.frontend.url:http://localhost:3000}")
+    @Value("${app.frontend.url:https://hirium.vercel.app}")
     private String frontendUrl;
 
-    @Value("${spring.mail.username:noreply@system.local}")
-    private String fromEmail;
+    @Value("${spring.mail.host:smtp.gmail.com}")
+    private String mailHost;
+
+    @Value("${spring.mail.port:587}")
+    private int mailPort;
+
+    @Value("${spring.mail.username:siddhesh.dev21@gmail.com}")
+    private String mailUsername;
+
+    @Value("${spring.mail.password:}")
+    private String mailPassword;
 
     @Override
     @Async
@@ -29,7 +41,7 @@ public class EmailManager implements EmailService {
         String company = (companyName != null && !companyName.isBlank()) ? companyName : "Hirium Enterprise";
         String subject = "Welcome to " + company + " — Your Hirium HRMS Login Details";
 
-        String portalUrl = frontendUrl + "/login";
+        String portalUrl = (frontendUrl != null && !frontendUrl.isBlank() ? frontendUrl : "https://hirium.vercel.app") + "/login";
 
         String body = String.format("""
             Dear %s,
@@ -63,26 +75,46 @@ public class EmailManager implements EmailService {
             company
         );
 
-        logger.info("\n=======================================================\n" +
-                    "DISPATCHING AUTOMATED ONBOARDING EMAIL TO: {}\n" +
-                    "SUBJECT: {}\n" +
-                    "-------------------------------------------------------\n" +
-                    "{}\n" +
-                    "=======================================================\n",
-                toEmail, subject, body);
+        logger.info("Dispatching welcome email to: {} for company: {}", toEmail, company);
 
-        if (mailSender != null) {
-            try {
+        try {
+            String effectiveUsername = (mailUsername != null && !mailUsername.isBlank()) ? mailUsername.trim() : "siddhesh.dev21@gmail.com";
+            String effectivePassword = (mailPassword != null && !mailPassword.isBlank()) ? mailPassword.replaceAll("\\s+", "") : "";
+
+            JavaMailSender activeSender = this.mailSender;
+
+            // Fallback dynamic sender initialization
+            if (activeSender == null && !effectivePassword.isBlank()) {
+                JavaMailSenderImpl impl = new JavaMailSenderImpl();
+                impl.setHost(mailHost != null ? mailHost.trim() : "smtp.gmail.com");
+                impl.setPort(mailPort > 0 ? mailPort : 587);
+                impl.setUsername(effectiveUsername);
+                impl.setPassword(effectivePassword);
+
+                Properties props = impl.getJavaMailProperties();
+                props.put("mail.transport.protocol", "smtp");
+                props.put("mail.smtp.auth", "true");
+                props.put("mail.smtp.starttls.enable", "true");
+                props.put("mail.smtp.starttls.required", "true");
+                props.put("mail.smtp.connectiontimeout", "5000");
+                props.put("mail.smtp.timeout", "5000");
+                props.put("mail.smtp.writetimeout", "5000");
+                activeSender = impl;
+            }
+
+            if (activeSender != null) {
                 SimpleMailMessage message = new SimpleMailMessage();
-                message.setFrom(fromEmail);
+                message.setFrom(effectiveUsername);
                 message.setTo(toEmail);
                 message.setSubject(subject);
                 message.setText(body);
-                mailSender.send(message);
-                logger.info("Welcome email successfully sent to {}", toEmail);
-            } catch (Exception e) {
-                logger.warn("Could not dispatch live SMTP email to {} (SMTP not configured or offline): {}", toEmail, e.getMessage());
+                activeSender.send(message);
+                logger.info("SUCCESS: Automated onboarding email delivered to {}", toEmail);
+            } else {
+                logger.warn("SMTP email skipped: SPRING_MAIL_PASSWORD environment variable is empty on this server.");
             }
+        } catch (Exception e) {
+            logger.error("Failed to send welcome email to {}: {}", toEmail, e.getMessage(), e);
         }
     }
 }

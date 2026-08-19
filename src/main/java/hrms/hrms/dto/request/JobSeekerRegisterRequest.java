@@ -18,8 +18,6 @@ public class JobSeekerRegisterRequest {
 	@Size(min = 2, max = 100, message = "Last name must be between 2 and 100 characters.")
 	private String lastName;
 
-	@NotBlank(message = "National ID cannot be blank.")
-	@Size(min = 10, max = 20, message = "National ID must be between 10 and 20 characters.")
 	private String nationalId;
 
 	@NotNull(message = "Birth date is required.")

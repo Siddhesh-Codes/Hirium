@@ -13,7 +13,19 @@ import {
 } from '@/schemas/authSchemas';
 import { authApi } from '@/lib/api';
 import { useToastStore } from '@/lib/store/toastStore';
-import { Building2, User, Lock, Mail, Phone, Globe, Calendar, AlertCircle, ArrowRight } from 'lucide-react';
+import {
+  Building2,
+  User,
+  Lock,
+  Mail,
+  Phone,
+  Globe,
+  Calendar,
+  AlertCircle,
+  ArrowRight,
+  Eye,
+  EyeOff,
+} from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 import clsx from 'clsx';
 
@@ -23,6 +35,12 @@ export default function RegisterPage() {
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { success, error: toastError } = useToastStore();
+
+  // Eye toggle states for password visibility
+  const [showEmpPassword, setShowEmpPassword] = useState(false);
+  const [showEmpConfirmPassword, setShowEmpConfirmPassword] = useState(false);
+  const [showSeekerPassword, setShowSeekerPassword] = useState(false);
+  const [showSeekerConfirmPassword, setShowSeekerConfirmPassword] = useState(false);
 
   // Employer Form
   const employerForm = useForm<EmployerRegisterFormData>({
@@ -145,7 +163,7 @@ export default function RegisterPage() {
                 <input
                   type="text"
                   {...employerForm.register('companyName')}
-                  placeholder="Acme Technologies Inc."
+                  placeholder="Acme Corporation Ltd."
                   className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
                 />
               </div>
@@ -157,11 +175,11 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-ink mb-1">Website URL</label>
+              <label className="block text-xs font-medium text-ink mb-1">Company Website</label>
               <div className="relative">
                 <Globe className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
-                  type="text"
+                  type="url"
                   {...employerForm.register('companyWebPage')}
                   placeholder="https://acme.com"
                   className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
@@ -200,7 +218,7 @@ export default function RegisterPage() {
                   <input
                     type="text"
                     {...employerForm.register('phoneNumber')}
-                    placeholder="5551234567"
+                    placeholder="9876543210"
                     className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
                   />
                 </div>
@@ -218,11 +236,24 @@ export default function RegisterPage() {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showEmpPassword ? 'text' : 'password'}
                     {...employerForm.register('password')}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
+                    className="w-full pl-9 pr-9 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowEmpPassword(!showEmpPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-0.5"
+                    title={showEmpPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showEmpPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showEmpPassword ? (
+                      <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+                    ) : (
+                      <Eye className="w-4 h-4" strokeWidth={1.75} />
+                    )}
+                  </button>
                 </div>
                 {employerForm.formState.errors.password && (
                   <p className="text-[11px] text-semantic-danger mt-1">
@@ -236,11 +267,24 @@ export default function RegisterPage() {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showEmpConfirmPassword ? 'text' : 'password'}
                     {...employerForm.register('confirmPassword')}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
+                    className="w-full pl-9 pr-9 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowEmpConfirmPassword(!showEmpConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-0.5"
+                    title={showEmpConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showEmpConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showEmpConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+                    ) : (
+                      <Eye className="w-4 h-4" strokeWidth={1.75} />
+                    )}
+                  </button>
                 </div>
                 {employerForm.formState.errors.confirmPassword && (
                   <p className="text-[11px] text-semantic-danger mt-1">
@@ -253,13 +297,13 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-2 py-2.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium rounded shadow-subtle transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full mt-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium rounded shadow-subtle transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
-                'Registering Company...'
+                'Creating Organization Account...'
               ) : (
                 <>
-                  Register Employer
+                  Register as Employer
                   <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
@@ -267,7 +311,7 @@ export default function RegisterPage() {
           </form>
         )}
 
-        {/* Job Seeker Registration Form */}
+        {/* Job Seeker Registration Form (National ID removed) */}
         {activeTab === 'seeker' && (
           <form onSubmit={seekerForm.handleSubmit(onSeekerSubmit)} className="space-y-4" noValidate>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -304,16 +348,19 @@ export default function RegisterPage() {
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-ink mb-1">National ID</label>
-                <input
-                  type="text"
-                  {...seekerForm.register('nationalId')}
-                  placeholder="11-digit National ID"
-                  className="w-full px-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted tabular-nums"
-                />
-                {seekerForm.formState.errors.nationalId && (
+                <label className="block text-xs font-medium text-ink mb-1">Email Address</label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    {...seekerForm.register('email')}
+                    placeholder="jane.doe@example.com"
+                    className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
+                  />
+                </div>
+                {seekerForm.formState.errors.email && (
                   <p className="text-[11px] text-semantic-danger mt-1">
-                    {seekerForm.formState.errors.nationalId.message}
+                    {seekerForm.formState.errors.email.message}
                   </p>
                 )}
               </div>
@@ -335,35 +382,30 @@ export default function RegisterPage() {
               </div>
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-ink mb-1">Email Address</label>
-              <div className="relative">
-                <Mail className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  {...seekerForm.register('email')}
-                  placeholder="jane.doe@example.com"
-                  className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
-                />
-              </div>
-              {seekerForm.formState.errors.email && (
-                <p className="text-[11px] text-semantic-danger mt-1">
-                  {seekerForm.formState.errors.email.message}
-                </p>
-              )}
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-ink mb-1">Password</label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showSeekerPassword ? 'text' : 'password'}
                     {...seekerForm.register('password')}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
+                    className="w-full pl-9 pr-9 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowSeekerPassword(!showSeekerPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-0.5"
+                    title={showSeekerPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showSeekerPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showSeekerPassword ? (
+                      <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+                    ) : (
+                      <Eye className="w-4 h-4" strokeWidth={1.75} />
+                    )}
+                  </button>
                 </div>
                 {seekerForm.formState.errors.password && (
                   <p className="text-[11px] text-semantic-danger mt-1">
@@ -377,11 +419,24 @@ export default function RegisterPage() {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showSeekerConfirmPassword ? 'text' : 'password'}
                     {...seekerForm.register('confirmPassword')}
                     placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
+                    className="w-full pl-9 pr-9 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowSeekerConfirmPassword(!showSeekerConfirmPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-0.5"
+                    title={showSeekerConfirmPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showSeekerConfirmPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showSeekerConfirmPassword ? (
+                      <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+                    ) : (
+                      <Eye className="w-4 h-4" strokeWidth={1.75} />
+                    )}
+                  </button>
                 </div>
                 {seekerForm.formState.errors.confirmPassword && (
                   <p className="text-[11px] text-semantic-danger mt-1">
@@ -394,13 +449,13 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full mt-2 py-2.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium rounded shadow-subtle transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full mt-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-xs font-medium rounded shadow-subtle transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {isSubmitting ? (
-                'Creating Profile...'
+                'Creating Candidate Account...'
               ) : (
                 <>
-                  Register Candidate
+                  Register as Candidate
                   <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
@@ -410,9 +465,9 @@ export default function RegisterPage() {
 
         {/* Switch to Login */}
         <div className="mt-8 pt-6 border-t border-border text-center text-xs text-muted">
-          Already registered?{' '}
+          Already have an account?{' '}
           <Link href="/login" className="text-accent hover:underline font-medium">
-            Sign in to your account
+            Sign in
           </Link>
         </div>
       </div>

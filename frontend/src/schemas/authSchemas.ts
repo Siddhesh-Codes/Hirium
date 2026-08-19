@@ -58,11 +58,7 @@ export const jobSeekerRegisterSchema = z
       .trim()
       .min(2, 'Last name must be between 2 and 100 characters')
       .max(100, 'Last name cannot exceed 100 characters'),
-    nationalId: z
-      .string()
-      .trim()
-      .min(10, 'National ID must be between 10 and 20 characters')
-      .max(20, 'National ID cannot exceed 20 characters'),
+    nationalId: z.string().optional(),
     birthDate: z
       .string()
       .min(1, 'Birth date is required')

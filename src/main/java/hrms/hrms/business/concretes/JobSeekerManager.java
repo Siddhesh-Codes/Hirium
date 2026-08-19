@@ -35,14 +35,15 @@ public class JobSeekerManager implements JobSeekerService {
 		if (jobSeekerDao.findByEmail(request.getEmail()).isPresent()) {
 			return new ErrorResult("Email is already in use.");
 		}
-		if (jobSeekerDao.findByNationalId(request.getNationalId()).isPresent()) {
-			return new ErrorResult("National ID is already in use.");
-		}
-
 		JobSeeker js = new JobSeeker();
 		js.setName(request.getName());
 		js.setLastName(request.getLastName());
-		js.setNationalId(request.getNationalId());
+		if (request.getNationalId() != null && !request.getNationalId().isBlank()) {
+			if (jobSeekerDao.findByNationalId(request.getNationalId()).isPresent()) {
+				return new ErrorResult("National ID is already in use.");
+			}
+			js.setNationalId(request.getNationalId());
+		}
 		js.setBirthDate(request.getBirthDate());
 		js.setEmail(request.getEmail());
 		js.setPassword(passwordEncoder.encode(request.getPassword()));

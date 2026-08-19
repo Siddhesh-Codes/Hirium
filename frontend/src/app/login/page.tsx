@@ -9,7 +9,7 @@ import { loginSchema, LoginFormData } from '@/schemas/authSchemas';
 import { authApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
 import { useToastStore } from '@/lib/store/toastStore';
-import { Lock, Mail, AlertCircle, ArrowRight } from 'lucide-react';
+import { Lock, Mail, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 
 function LoginFormContent() {
@@ -22,6 +22,7 @@ function LoginFormContent() {
   const { success, error: toastError } = useToastStore();
   const [apiError, setApiError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
@@ -124,12 +125,25 @@ function LoginFormContent() {
           <div className="relative">
             <Lock className="w-4 h-4 text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               {...register('password')}
               placeholder="••••••••"
-              className="w-full pl-9 pr-3 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
+              className="w-full pl-9 pr-9 py-2 text-xs border border-border rounded bg-surface-light text-ink placeholder:text-muted"
               aria-invalid={!!errors.password}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted hover:text-ink transition-colors p-0.5"
+              title={showPassword ? 'Hide password' : 'Show password'}
+              aria-label={showPassword ? 'Hide password' : 'Show password'}
+            >
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" strokeWidth={1.75} />
+              ) : (
+                <Eye className="w-4 h-4" strokeWidth={1.75} />
+              )}
+            </button>
           </div>
           {errors.password && (
             <p className="text-[11px] text-semantic-danger mt-1">{errors.password.message}</p>
@@ -166,17 +180,7 @@ function LoginFormContent() {
 export default function LoginPage() {
   return (
     <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center px-4 py-12">
-      <Suspense
-        fallback={
-          <div className="w-full max-w-md bg-surface-light border border-border rounded-lg p-8 text-center animate-pulse">
-            <div className="w-10 h-10 bg-border/60 rounded mx-auto mb-4" />
-            <div className="h-6 w-3/4 bg-border/60 rounded mx-auto mb-2" />
-            <div className="h-4 w-1/2 bg-border/40 rounded mx-auto mb-6" />
-            <div className="h-10 bg-border/40 rounded mb-3" />
-            <div className="h-10 bg-border/40 rounded" />
-          </div>
-        }
-      >
+      <Suspense fallback={<div className="text-xs text-muted">Loading secure portal...</div>}>
         <LoginFormContent />
       </Suspense>
     </div>

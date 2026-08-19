@@ -35,9 +35,7 @@ public class JobSeeker {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @NotBlank(message = "National ID cannot be blank.")
-    @Size(min = 10, max = 20, message = "National ID must be between 10 and 20 characters.")
-    @Column(name = "national_id", nullable = false, length = 20, unique = true)
+    @Column(name = "national_id", nullable = true, length = 20, unique = true)
     private String nationalId;
 
     @NotNull(message = "Birth date is required.")

@@ -9,6 +9,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 
+import org.springframework.jdbc.core.JdbcTemplate;
+
 import hrms.hrms.entity.City;
 import hrms.hrms.entity.JobPosition;
 import hrms.hrms.repository.CityDao;
@@ -23,8 +25,12 @@ public class HrmsApplication {
 
 	@Bean
 	@Profile("!test")
-	public CommandLineRunner dataInitializer(JobPositionDao jobPositionDao, CityDao cityDao) {
+	public CommandLineRunner dataInitializer(JobPositionDao jobPositionDao, CityDao cityDao, JdbcTemplate jdbcTemplate) {
 		return args -> {
+			try {
+				jdbcTemplate.execute("ALTER TABLE job_seekers ALTER COLUMN national_id DROP NOT NULL");
+			} catch (Exception ignored) {
+			}
 			List<String> defaultPositions = Arrays.asList(
 				"Software Engineer",
 				"Frontend Developer",

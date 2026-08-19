@@ -17,6 +17,7 @@ import {
   Layers
 } from 'lucide-react';
 import { TableSkeleton } from '@/components/ui/TableSkeleton';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function DepartmentsPage() {
   const queryClient = useQueryClient();
@@ -24,6 +25,7 @@ export default function DepartmentsPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
+  const [deptToDelete, setDeptToDelete] = useState<Department | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     code: '',
@@ -156,11 +158,7 @@ export default function DepartmentsPage() {
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => {
-                        if (confirm(`Delete department ${dept.name}?`)) {
-                          deleteMutation.mutate(dept.id);
-                        }
-                      }}
+                      onClick={() => setDeptToDelete(dept)}
                       className="p-1.5 text-muted hover:text-semantic-danger rounded hover:bg-semantic-dangerBg transition-colors"
                       title="Delete department"
                     >
@@ -279,6 +277,24 @@ export default function DepartmentsPage() {
           </div>
         </div>
       )}
+
+      {/* In-App Department Deletion Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deptToDelete}
+        title="Delete Department"
+        message={`Are you sure you want to delete the "${deptToDelete?.name}" (${deptToDelete?.code}) department? Any employees currently in this department will become unassigned.`}
+        confirmText="Delete Department"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (deptToDelete) {
+            deleteMutation.mutate(deptToDelete.id, {
+              onSettled: () => setDeptToDelete(null),
+            });
+          }
+        }}
+        onClose={() => setDeptToDelete(null)}
+      />
     </div>
   );
 }

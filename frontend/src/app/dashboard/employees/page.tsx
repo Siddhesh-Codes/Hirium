@@ -29,6 +29,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import { TableSkeleton } from '@/components/ui/TableSkeleton';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function EmployeesPage() {
   const queryClient = useQueryClient();
@@ -38,6 +39,7 @@ export default function EmployeesPage() {
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [employeeToDelete, setEmployeeToDelete] = useState<Employee | null>(null);
 
   // Newly Created Employee Credentials Modal State
   const [createdCredentials, setCreatedCredentials] = useState<{
@@ -332,11 +334,7 @@ export default function EmployeesPage() {
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                         <button
-                          onClick={() => {
-                            if (confirm(`Remove employee ${emp.fullName || emp.firstName}?`)) {
-                              deleteMutation.mutate(emp.id);
-                            }
-                          }}
+                          onClick={() => setEmployeeToDelete(emp)}
                           className="p-1.5 text-muted hover:text-semantic-danger rounded border border-transparent hover:border-semantic-danger/20 hover:bg-semantic-dangerBg transition-colors"
                           title="Delete employee"
                         >
@@ -622,6 +620,24 @@ export default function EmployeesPage() {
           </div>
         </div>
       )}
+
+      {/* In-App Employee Deletion Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!employeeToDelete}
+        title="Remove Employee"
+        message={`Are you sure you want to remove ${employeeToDelete?.fullName || employeeToDelete?.firstName || 'this employee'}? This will permanently delete their account, attendance logs, and access credentials.`}
+        confirmText="Remove Employee"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
+        onConfirm={() => {
+          if (employeeToDelete) {
+            deleteMutation.mutate(employeeToDelete.id, {
+              onSettled: () => setEmployeeToDelete(null),
+            });
+          }
+        }}
+        onClose={() => setEmployeeToDelete(null)}
+      />
     </div>
   );
 }

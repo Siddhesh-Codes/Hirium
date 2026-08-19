@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { jobsApi, applicationsApi } from '@/lib/api';
 import { useAuthStore } from '@/lib/store/authStore';
@@ -24,6 +24,7 @@ import {
   Loader2,
   Cloud,
   ExternalLink,
+  User,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
@@ -31,19 +32,23 @@ import { Modal } from '@/components/ui/Modal';
 
 export default function JobDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const queryClient = useQueryClient();
   const id = Number(params.id);
 
-  const { user, isAuthenticated } = useAuthStore();
+  const { user } = useAuthStore();
   const { success, error: toastError } = useToastStore();
 
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
+  const [candidateName, setCandidateName] = useState(user?.name || '');
+  const [candidateEmail, setCandidateEmail] = useState(user?.email || '');
+  const [candidatePhone, setCandidatePhone] = useState('');
+  const [coverLetter, setCoverLetter] = useState('');
   const [resumeName, setResumeName] = useState<string>('');
   const [resumeUrl, setResumeUrl] = useState<string>('');
   const [cloudinaryUrl, setCloudinaryUrl] = useState<string>('');
   const [isUploading, setIsUploading] = useState(false);
   const [fileSizeText, setFileSizeText] = useState<string>('');
+  const [submittedSuccess, setSubmittedSuccess] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: jobResult, isLoading } = useQuery({
@@ -58,21 +63,27 @@ export default function JobDetailPage() {
     enabled: !!user?.userId && user.role === 'JOB_SEEKER',
   });
 
-  const hasApplied = (myAppsResult?.data || []).some(
+  const hasApplied = submittedSuccess || (myAppsResult?.data || []).some(
     (app) => app.jobAdvertisementId === id
   );
 
   const applyMutation = useMutation({
     mutationFn: (resumeParam?: string) => {
-      if (!user || user.role !== 'JOB_SEEKER') {
-        throw new Error('Only candidates can submit applications.');
-      }
-      return applicationsApi.apply(id, user.userId, resumeParam);
+      return applicationsApi.apply({
+        jobAdvertisementId: id,
+        jobSeekerId: user?.role === 'JOB_SEEKER' ? user.userId : undefined,
+        candidateName: candidateName || user?.name || 'Applicant',
+        candidateEmail: candidateEmail || user?.email || '',
+        candidatePhone,
+        resumeUrl: resumeParam,
+        coverLetter,
+      });
     },
     onSuccess: (res) => {
       if (res.succes) {
-        success('Application Submitted', 'Your candidate profile and Cloudinary-stored resume have been sent to the employer.');
+        success('Application Submitted', `Your application and resume have been sent to ${jobResult?.data?.companyName || 'the employer'}.`);
         setIsApplyModalOpen(false);
+        setSubmittedSuccess(true);
         setResumeName('');
         setResumeUrl('');
         setCloudinaryUrl('');
@@ -117,7 +128,7 @@ export default function JobDetailPage() {
       }
 
       setCloudinaryUrl(data.url);
-      success('Resume Uploaded', `${file.name} securely stored on Cloudinary CDN.`);
+      success('Resume Uploaded', `${file.name} securely uploaded.`);
     } catch (err: any) {
       toastError('Upload Failed', err.message || 'Failed to upload document.');
       setResumeName('');
@@ -167,7 +178,6 @@ export default function JobDetailPage() {
   }
 
   const isExpired = new Date(job.applicationDeadline) < new Date();
-  const isEmployer = user?.role === 'EMPLOYER';
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
@@ -222,31 +232,29 @@ export default function JobDetailPage() {
               <Badge variant="neutral">Closed</Badge>
             )}
 
-            {/* Apply Action Button */}
-            {!isAuthenticated ? (
-              <button
-                onClick={() => router.push(`/login?redirect=/jobs/${job.id}`)}
-                className="w-full sm:w-auto px-5 py-2.5 bg-accent text-white font-medium rounded text-xs hover:bg-accent-hover transition-colors shadow-subtle"
-              >
-                Sign In to Apply
-              </button>
-            ) : isEmployer ? (
-              <div className="text-xs text-muted bg-surface-subtle px-3 py-1.5 rounded border border-border">
-                Employer Account
-              </div>
-            ) : hasApplied ? (
-              <div className="flex items-center gap-1.5 text-xs text-semantic-success font-medium bg-semantic-successBg px-3 py-1.5 rounded border border-semantic-success/30">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+            {/* Public Instant Apply Action Button */}
+            {hasApplied ? (
+              <div className="flex items-center gap-1.5 text-xs text-semantic-success font-semibold bg-semantic-successBg px-4 py-2.5 rounded border border-semantic-success/30">
+                <CheckCircle2 className="w-4 h-4" />
                 Application Submitted
               </div>
-            ) : (
+            ) : job.active && !isExpired ? (
               <button
-                onClick={() => setIsApplyModalOpen(true)}
-                disabled={!job.active || isExpired}
-                className="w-full sm:w-auto px-5 py-2.5 bg-accent text-white font-medium rounded text-xs hover:bg-accent-hover transition-colors shadow-subtle disabled:opacity-50"
+                onClick={() => {
+                  if (user) {
+                    setCandidateName(user.name || '');
+                    setCandidateEmail(user.email || '');
+                  }
+                  setIsApplyModalOpen(true);
+                }}
+                className="w-full sm:w-auto px-6 py-2.5 bg-accent text-white font-bold rounded text-xs hover:bg-accent-hover transition-all shadow-sm"
               >
-                Apply Now
+                Apply for this Position
               </button>
+            ) : (
+              <div className="text-xs text-muted bg-surface-subtle px-3.5 py-2 rounded border border-border">
+                Position Closed
+              </div>
             )}
           </div>
         </div>
@@ -328,18 +336,70 @@ export default function JobDetailPage() {
         isOpen={isApplyModalOpen}
         onClose={() => setIsApplyModalOpen(false)}
         title={`Apply for ${job.jobTitle}`}
-        description={`Submit your verified credentials and resume to ${job.companyName}.`}
+        description={`Submit your application and resume directly to ${job.companyName}.`}
       >
-        <div className="space-y-4 text-xs">
-          {/* Candidate Profile Summary */}
-          <div className="p-3 bg-surface-subtle rounded border border-border space-y-1">
-            <p className="font-semibold text-ink">Candidate Details</p>
-            <p className="text-muted">{user?.name} ({user?.email})</p>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!candidateName.trim() || !candidateEmail.trim()) {
+              toastError('Required Fields', 'Please provide your full name and email address.');
+              return;
+            }
+            const finalResume = cloudinaryUrl || resumeUrl || 'Direct Candidate Application';
+            applyMutation.mutate(finalResume);
+          }}
+          className="space-y-4 text-xs"
+        >
+          {/* Candidate Name & Email */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-[11px] font-semibold text-ink mb-1">Full Name *</label>
+              <div className="relative">
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Rahul Sharma"
+                  value={candidateName}
+                  onChange={(e) => setCandidateName(e.target.value)}
+                  className="w-full pl-8 pr-3 py-2 bg-surface-subtle border border-border rounded text-xs text-ink focus:outline-none focus:border-accent"
+                />
+                <User className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-semibold text-ink mb-1">Email Address *</label>
+              <div className="relative">
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. rahul.sharma@example.com"
+                  value={candidateEmail}
+                  onChange={(e) => setCandidateEmail(e.target.value)}
+                  className="w-full pl-8 pr-3 py-2 bg-surface-subtle border border-border rounded text-xs text-ink focus:outline-none focus:border-accent"
+                />
+                <Mail className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5" />
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-[11px] font-semibold text-ink mb-1">Phone Number (Optional)</label>
+            <div className="relative">
+              <input
+                type="tel"
+                placeholder="e.g. +91 98765 43210"
+                value={candidatePhone}
+                onChange={(e) => setCandidatePhone(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 bg-surface-subtle border border-border rounded text-xs text-ink focus:outline-none focus:border-accent"
+              />
+              <Phone className="w-3.5 h-3.5 text-muted absolute left-2.5 top-2.5" />
+            </div>
           </div>
 
           {/* Cloudinary Document Upload Box */}
           <div className="space-y-2">
-            <label className="block font-medium text-ink">Attach Resume / CV (PDF, DOCX)</label>
+            <label className="block font-semibold text-ink">Attach Resume / CV (PDF, DOCX)</label>
             <input
               type="file"
               ref={fileInputRef}
@@ -397,7 +457,7 @@ export default function JobDetailPage() {
                   <FileUp className="w-4 h-4" />
                 </div>
                 <span className="text-xs font-semibold text-ink">Click to upload your resume (PDF / DOCX)</span>
-                <span className="text-[10px] text-muted">Direct Cloudinary CDN upload • Max 5 MB</span>
+                <span className="text-[10px] text-muted">Cloudinary CDN document storage • Max 5 MB</span>
               </button>
             )}
 
@@ -417,29 +477,34 @@ export default function JobDetailPage() {
             </div>
           </div>
 
-          <p className="text-muted leading-relaxed text-[11px]">
-            Your application and attached document will be delivered to the employer hiring dashboard for immediate review.
-          </p>
+          <div>
+            <label className="block text-[11px] font-semibold text-ink mb-1">Cover Note (Optional)</label>
+            <textarea
+              rows={2}
+              placeholder="Why are you a good fit for this role?"
+              value={coverLetter}
+              onChange={(e) => setCoverLetter(e.target.value)}
+              className="w-full px-3 py-1.5 bg-surface-subtle/50 border border-border rounded text-xs text-ink placeholder:text-muted/60 focus:outline-none focus:border-accent resize-none"
+            />
+          </div>
 
           <div className="pt-3 flex items-center justify-end gap-2 border-t border-border">
             <button
+              type="button"
               onClick={() => setIsApplyModalOpen(false)}
               className="px-4 py-2 border border-border rounded text-xs font-medium text-ink hover:bg-surface-subtle transition-colors"
             >
               Cancel
             </button>
             <button
-              onClick={() => {
-                const finalResume = cloudinaryUrl || resumeUrl || 'Direct Candidate Application';
-                applyMutation.mutate(finalResume);
-              }}
+              type="submit"
               disabled={applyMutation.isPending || isUploading}
-              className="px-4 py-2 bg-accent text-white rounded text-xs font-medium hover:bg-accent-hover transition-colors disabled:opacity-50 flex items-center gap-1.5"
+              className="px-5 py-2 bg-accent text-white rounded text-xs font-bold hover:bg-accent-hover transition-colors disabled:opacity-50 flex items-center gap-1.5 shadow-sm"
             >
-              {applyMutation.isPending ? 'Submitting Application...' : 'Confirm Submission'}
+              {applyMutation.isPending ? 'Submitting Application...' : 'Submit Application'}
             </button>
           </div>
-        </div>
+        </form>
       </Modal>
     </div>
   );

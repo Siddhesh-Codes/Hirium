@@ -73,11 +73,7 @@ api.interceptors.response.use(
 
     if (error.response.status === 401 && !originalRequest._retry) {
       if (originalRequest.url?.includes('/api/auth/refresh')) {
-        // Refresh token itself failed
-        useAuthStore.getState().clearAuth();
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login')) {
-          window.location.href = '/login?session=expired';
-        }
+        // Refresh token endpoint returned 401
         return Promise.reject(error);
       }
 
@@ -123,14 +119,6 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshErr: any) {
         processQueue(refreshErr, null);
-        // Only clear auth and redirect if the server explicitly returned 401 (invalid/expired refresh token),
-        // not if the backend is temporarily restarting / rebooting during a redeploy
-        if (axios.isAxiosError(refreshErr) && refreshErr.response?.status === 401) {
-          useAuthStore.getState().clearAuth();
-          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && window.location.pathname.startsWith('/dashboard')) {
-            window.location.href = '/login?session=expired';
-          }
-        }
         return Promise.reject(refreshErr);
       } finally {
         isRefreshing = false;
@@ -395,12 +383,32 @@ export const jobsApi = {
 };
 
 export const applicationsApi = {
-  apply: async (jobAdvertisementId: number, jobSeekerId: number, resumeUrl?: string): Promise<ApiSimpleResult> => {
-    const res = await api.post<ApiSimpleResult>('/api/applications/apply', {
-      jobAdvertisementId,
-      jobSeekerId,
-      resumeUrl,
-    });
+  apply: async (
+    data:
+      | {
+          jobAdvertisementId: number;
+          jobSeekerId?: number;
+          candidateName?: string;
+          candidateEmail?: string;
+          candidatePhone?: string;
+          resumeUrl?: string;
+          coverLetter?: string;
+        }
+      | number,
+    seekerId?: number,
+    resumeUrl?: string
+  ): Promise<ApiSimpleResult> => {
+    let payload: any;
+    if (typeof data === 'object') {
+      payload = data;
+    } else {
+      payload = {
+        jobAdvertisementId: data,
+        jobSeekerId: seekerId,
+        resumeUrl,
+      };
+    }
+    const res = await api.post<ApiSimpleResult>('/api/applications/apply', payload);
     return res.data;
   },
 

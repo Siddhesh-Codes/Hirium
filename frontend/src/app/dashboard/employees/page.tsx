@@ -85,11 +85,12 @@ export default function EmployeesPage() {
   // Add / Update Mutation
   const saveMutation = useMutation({
     mutationFn: async () => {
+      const generatedPass = formData.password || `Pass${Math.floor(1000 + Math.random() * 9000)}!`;
       const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        password: formData.password || undefined,
+        password: editingEmployee ? (formData.password || undefined) : generatedPass,
         phone: formData.phone,
         departmentId: formData.departmentId ? Number(formData.departmentId) : undefined,
         jobTitle: formData.jobTitle,
@@ -100,19 +101,21 @@ export default function EmployeesPage() {
       };
 
       if (editingEmployee) {
-        return employeesApi.update(editingEmployee.id, payload);
+        const res = await employeesApi.update(editingEmployee.id, payload);
+        return { res, sentPass: '' };
       } else {
-        return employeesApi.add(payload);
+        const res = await employeesApi.add(payload);
+        return { res, sentPass: generatedPass };
       }
     },
-    onSuccess: (res) => {
+    onSuccess: ({ res, sentPass }) => {
       if (res.succes) {
         if (!editingEmployee) {
           const dept = departments.find((d) => d.id.toString() === formData.departmentId);
           setCreatedCredentials({
             name: `${formData.firstName} ${formData.lastName}`,
             email: formData.email,
-            temporaryPassword: formData.password,
+            temporaryPassword: sentPass,
             role: formData.role,
             jobTitle: formData.jobTitle,
             departmentName: dept?.name || 'General Operations',

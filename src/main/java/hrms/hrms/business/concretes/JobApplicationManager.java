@@ -1,7 +1,9 @@
 package hrms.hrms.business.concretes;
 
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import hrms.hrms.business.abstracts.JobApplicationService;
@@ -27,12 +29,14 @@ public class JobApplicationManager implements JobApplicationService {
 	private final JobApplicationDao jobApplicationDao;
 	private final JobAdvertisementDao jobAdvertisementDao;
 	private final JobSeekerDao jobSeekerDao;
+	private final PasswordEncoder passwordEncoder;
 
 	public JobApplicationManager(JobApplicationDao jobApplicationDao, JobAdvertisementDao jobAdvertisementDao,
-			JobSeekerDao jobSeekerDao) {
+			JobSeekerDao jobSeekerDao, PasswordEncoder passwordEncoder) {
 		this.jobApplicationDao = jobApplicationDao;
 		this.jobAdvertisementDao = jobAdvertisementDao;
 		this.jobSeekerDao = jobSeekerDao;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
@@ -43,11 +47,31 @@ public class JobApplicationManager implements JobApplicationService {
 			return new ErrorResult("Job advertisement is not active.");
 		}
 
-		JobSeeker seeker = jobSeekerDao.findById(request.getJobSeekerId())
-				.orElseThrow(() -> new IllegalArgumentException("Job seeker not found."));
+		JobSeeker seeker;
+		if (request.getJobSeekerId() != null) {
+			seeker = jobSeekerDao.findById(request.getJobSeekerId())
+					.orElseThrow(() -> new IllegalArgumentException("Job seeker profile not found."));
+		} else if (request.getCandidateEmail() != null && !request.getCandidateEmail().isBlank()) {
+			String email = request.getCandidateEmail().trim().toLowerCase();
+			seeker = jobSeekerDao.findByEmail(email).orElseGet(() -> {
+				JobSeeker newSeeker = new JobSeeker();
+				String rawName = request.getCandidateName() != null && !request.getCandidateName().isBlank()
+						? request.getCandidateName().trim()
+						: "Candidate";
+				String[] parts = rawName.split("\\s+", 2);
+				newSeeker.setName(parts[0]);
+				newSeeker.setLastName(parts.length > 1 ? parts[1] : "Applicant");
+				newSeeker.setEmail(email);
+				newSeeker.setBirthDate(LocalDate.of(2000, 1, 1));
+				newSeeker.setPassword(passwordEncoder.encode("Applicant@" + System.currentTimeMillis()));
+				return jobSeekerDao.save(newSeeker);
+			});
+		} else {
+			return new ErrorResult("Candidate information or Seeker ID is required to apply.");
+		}
 
 		if (jobApplicationDao.findByJobAdvertisement_IdAndJobSeeker_Id(ad.getId(), seeker.getId()).isPresent()) {
-			return new ErrorResult("You have already applied to this advertisement.");
+			return new ErrorResult("You have already applied to this position.");
 		}
 
 		JobApplication app = new JobApplication();
@@ -57,7 +81,7 @@ public class JobApplicationManager implements JobApplicationService {
 		app.setResumeUrl(request.getResumeUrl());
 
 		jobApplicationDao.save(app);
-		return new SuccessResult("Application submitted.");
+		return new SuccessResult("Application submitted successfully to " + ad.getEmployer().getCompanyName() + ".");
 	}
 
 	@Override
@@ -66,7 +90,7 @@ public class JobApplicationManager implements JobApplicationService {
 				.orElseThrow(() -> new IllegalArgumentException("Application not found."));
 		app.setStatus(request.getStatus());
 		jobApplicationDao.save(app);
-		return new SuccessResult("Application status updated.");
+		return new SuccessResult("Application status updated to " + request.getStatus() + ".");
 	}
 
 	@Override

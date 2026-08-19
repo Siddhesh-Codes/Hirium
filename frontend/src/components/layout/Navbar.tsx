@@ -104,6 +104,19 @@ export default function Navbar() {
                       <Building2 className="w-3.5 h-3.5" />
                       Departments
                     </Link>
+
+                    <Link
+                      href="/dashboard/recruitment"
+                      className={clsx(
+                        'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                        isActive('/dashboard/recruitment') || isActive('/dashboard/jobs')
+                          ? 'text-accent bg-accent-subtle/50 font-semibold'
+                          : 'text-muted hover:text-ink hover:bg-surface-subtle'
+                      )}
+                    >
+                      <Briefcase className="w-3.5 h-3.5" />
+                      Recruitment
+                    </Link>
                   </>
                 )}
 
@@ -144,19 +157,6 @@ export default function Navbar() {
                 >
                   <CreditCard className="w-3.5 h-3.5" />
                   Payroll
-                </Link>
-
-                <Link
-                  href="/dashboard/recruitment"
-                  className={clsx(
-                    'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
-                    isActive('/dashboard/recruitment') || isActive('/dashboard/jobs')
-                      ? 'text-accent bg-accent-subtle/50 font-semibold'
-                      : 'text-muted hover:text-ink hover:bg-surface-subtle'
-                  )}
-                >
-                  <Briefcase className="w-3.5 h-3.5" />
-                  Recruitment
                 </Link>
               </nav>
             )}
@@ -255,6 +255,13 @@ export default function Navbar() {
                   >
                     Departments
                   </Link>
+                  <Link
+                    href="/dashboard/recruitment"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
+                  >
+                    Recruitment
+                  </Link>
                 </>
               )}
               <Link
@@ -277,13 +284,6 @@ export default function Navbar() {
                 className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
               >
                 Payroll Processing
-              </Link>
-              <Link
-                href="/dashboard/recruitment"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
-              >
-                Recruitment
               </Link>
               <button
                 onClick={() => {

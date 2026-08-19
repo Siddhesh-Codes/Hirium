@@ -224,19 +224,35 @@ public class SecurityIntegrationTest {
     }
 
     @Test
-    void should_forbid_employer_from_applying() throws Exception {
+    void should_allow_public_candidate_to_apply() throws Exception {
         String json = String.format("""
         {
             "jobAdvertisementId": %d,
-            "jobSeekerId": %d
+            "candidateName": "Public Candidate",
+            "candidateEmail": "public.cand%d@test.com"
         }
-        """, savedAdvertisement.getId(), savedJobSeeker.getId());
+        """, savedAdvertisement.getId(), System.nanoTime());
 
         mockMvc.perform(post("/api/applications/apply")
-                        .header("Authorization", "Bearer " + employerToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.succes").value(false));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.succes").value(true));
+    }
+
+    @Test
+    void should_forbid_unauthorized_user_from_updating_application_status() throws Exception {
+        String json = """
+        {
+            "applicationId": 999,
+            "status": "APPROVED"
+        }
+        """;
+
+        // Without auth header, should fail
+        mockMvc.perform(post("/api/applications/update-status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isUnauthorized());
     }
 }

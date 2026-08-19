@@ -4,13 +4,15 @@ import jakarta.validation.constraints.NotNull;
 
 public class ApplyJobRequest {
 
-	@NotNull
+	@NotNull(message = "Job advertisement ID is required.")
 	private Integer jobAdvertisementId;
 
-	@NotNull
 	private Integer jobSeekerId;
-
+	private String candidateName;
+	private String candidateEmail;
+	private String candidatePhone;
 	private String resumeUrl;
+	private String coverLetter;
 
 	public ApplyJobRequest() {
 	}
@@ -42,11 +44,43 @@ public class ApplyJobRequest {
 		this.jobSeekerId = jobSeekerId;
 	}
 
+	public String getCandidateName() {
+		return candidateName;
+	}
+
+	public void setCandidateName(String candidateName) {
+		this.candidateName = candidateName;
+	}
+
+	public String getCandidateEmail() {
+		return candidateEmail;
+	}
+
+	public void setCandidateEmail(String candidateEmail) {
+		this.candidateEmail = candidateEmail;
+	}
+
+	public String getCandidatePhone() {
+		return candidatePhone;
+	}
+
+	public void setCandidatePhone(String candidatePhone) {
+		this.candidatePhone = candidatePhone;
+	}
+
 	public String getResumeUrl() {
 		return resumeUrl;
 	}
 
 	public void setResumeUrl(String resumeUrl) {
 		this.resumeUrl = resumeUrl;
+	}
+
+	public String getCoverLetter() {
+		return coverLetter;
+	}
+
+	public void setCoverLetter(String coverLetter) {
+		this.coverLetter = coverLetter;
 	}
 }

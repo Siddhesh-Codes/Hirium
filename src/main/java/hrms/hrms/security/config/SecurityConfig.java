@@ -130,9 +130,9 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/applications/by-advertisement/**").hasAnyRole("EMPLOYER", "HR", "ADMIN")
                         .requestMatchers(HttpMethod.GET, "/api/jobPost/active/by-employer", "/api/jobAdvertisements/active/by-employer").hasAnyRole("EMPLOYER", "HR", "ADMIN")
 
-                        // Recruitment - Candidate / Employee apply endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/applications/apply").hasAnyRole("JOB_SEEKER", "EMPLOYEE")
-                        .requestMatchers(HttpMethod.GET, "/api/applications/by-jobseeker/**").hasAnyRole("JOB_SEEKER", "EMPLOYEE")
+                        // Recruitment - Candidate apply (Open to public candidates)
+                        .requestMatchers(HttpMethod.POST, "/api/applications/apply").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/applications/by-jobseeker/**").permitAll()
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

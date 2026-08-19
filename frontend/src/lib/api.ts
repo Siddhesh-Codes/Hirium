@@ -121,11 +121,15 @@ api.interceptors.response.use(
           originalRequest.headers.Authorization = `Bearer ${newAuthData.accessToken}`;
         }
         return api(originalRequest);
-      } catch (refreshErr) {
+      } catch (refreshErr: any) {
         processQueue(refreshErr, null);
-        useAuthStore.getState().clearAuth();
-        if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && window.location.pathname.startsWith('/dashboard')) {
-          window.location.href = '/login?session=expired';
+        // Only clear auth and redirect if the server explicitly returned 401 (invalid/expired refresh token),
+        // not if the backend is temporarily restarting / rebooting during a redeploy
+        if (axios.isAxiosError(refreshErr) && refreshErr.response?.status === 401) {
+          useAuthStore.getState().clearAuth();
+          if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/login') && window.location.pathname.startsWith('/dashboard')) {
+            window.location.href = '/login?session=expired';
+          }
         }
         return Promise.reject(refreshErr);
       } finally {

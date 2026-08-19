@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { UserProfile, UserRole } from '@/types';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { UserProfile } from '@/types';
 
 interface AuthState {
   user: UserProfile | null;
@@ -12,34 +13,52 @@ interface AuthState {
   setInitialized: (initialized: boolean) => void;
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
-  user: null,
-  accessToken: null,
-  isAuthenticated: false,
-  isInitialized: false,
-  setAuth: (user, token) => {
-    set({
-      user,
-      accessToken: token,
-      isAuthenticated: true,
-      isInitialized: true,
-    });
-  },
-  setAccessToken: (token) => {
-    set({
-      accessToken: token,
-      isAuthenticated: !!token,
-    });
-  },
-  clearAuth: () => {
-    set({
+export const useAuthStore = create<AuthState>()(
+  persist(
+    (set) => ({
       user: null,
       accessToken: null,
       isAuthenticated: false,
-      isInitialized: true,
-    });
-  },
-  setInitialized: (initialized) => {
-    set({ isInitialized: initialized });
-  },
-}));
+      isInitialized: false,
+      setAuth: (user, token) => {
+        set({
+          user,
+          accessToken: token,
+          isAuthenticated: true,
+          isInitialized: true,
+        });
+      },
+      setAccessToken: (token) => {
+        set({
+          accessToken: token,
+          isAuthenticated: !!token,
+        });
+      },
+      clearAuth: () => {
+        set({
+          user: null,
+          accessToken: null,
+          isAuthenticated: false,
+          isInitialized: true,
+        });
+      },
+      setInitialized: (initialized) => {
+        set({ isInitialized: initialized });
+      },
+    }),
+    {
+      name: 'hirium_auth_storage',
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        user: state.user,
+        accessToken: state.accessToken,
+        isAuthenticated: state.isAuthenticated,
+      }),
+      onRehydrateStorage: () => (state) => {
+        if (state) {
+          state.setInitialized(true);
+        }
+      },
+    }
+  )
+);

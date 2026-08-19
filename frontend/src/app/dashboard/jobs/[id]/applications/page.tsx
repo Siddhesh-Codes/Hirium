@@ -19,6 +19,8 @@ import {
   XCircle,
   Clock,
   Eye,
+  Cloud,
+  Download,
 } from 'lucide-react';
 import { StatusBadge, Badge } from '@/components/ui/Badge';
 import { TableSkeleton } from '@/components/ui/TableSkeleton';
@@ -32,6 +34,7 @@ export default function EmployerJobApplicantsPage() {
   const adId = Number(params.id);
 
   const [selectedApp, setSelectedApp] = useState<JobApplication | null>(null);
+  const [showPdfEmbed, setShowPdfEmbed] = useState(false);
 
   const { data: jobResult, isLoading: isJobLoading } = useQuery({
     queryKey: ['jobDetail', adId],
@@ -146,15 +149,22 @@ export default function EmployerJobApplicantsPage() {
                     <td className="py-3.5 px-4">
                       {app.resumeUrl ? (
                         app.resumeUrl.startsWith('http') ? (
-                          <a
-                            href={app.resumeUrl}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex items-center gap-1 text-accent hover:underline font-medium"
-                          >
-                            <ExternalLink className="w-3 h-3" />
-                            View Document
-                          </a>
+                          <div className="flex items-center gap-1.5">
+                            {app.resumeUrl.includes('cloudinary.com') && (
+                              <span title="Cloudinary CDN Document">
+                                <Cloud className="w-3.5 h-3.5 text-accent shrink-0" />
+                              </span>
+                            )}
+                            <a
+                              href={app.resumeUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-accent hover:underline font-medium"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              View CV
+                            </a>
+                          </div>
                         ) : (
                           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-accent-subtle/60 text-accent font-medium text-[11px] max-w-[160px] truncate">
                             <FileText className="w-3 h-3 shrink-0" />
@@ -171,7 +181,10 @@ export default function EmployerJobApplicantsPage() {
                     <td className="py-3.5 px-4 text-right">
                       <div className="inline-flex items-center gap-2">
                         <button
-                          onClick={() => setSelectedApp(app)}
+                          onClick={() => {
+                            setSelectedApp(app);
+                            setShowPdfEmbed(false);
+                          }}
                           className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium bg-surface-subtle hover:bg-border text-ink rounded border border-border transition-colors"
                         >
                           <Eye className="w-3.5 h-3.5" />
@@ -209,7 +222,10 @@ export default function EmployerJobApplicantsPage() {
         {/* Detailed Application & Resume Review Modal Window */}
         <Modal
           isOpen={!!selectedApp}
-          onClose={() => setSelectedApp(null)}
+          onClose={() => {
+            setSelectedApp(null);
+            setShowPdfEmbed(false);
+          }}
           title="Candidate Application Review"
           description={
             selectedApp
@@ -269,36 +285,81 @@ export default function EmployerJobApplicantsPage() {
                 </div>
               </div>
 
-              {/* Resume / Document Section */}
+              {/* Resume / Document Section with Cloudinary Support */}
               <div className="p-4 bg-surface-light border border-border rounded space-y-2.5">
-                <h4 className="font-semibold text-xs text-ink uppercase tracking-wider">
-                  Attached Resume & Documents
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-xs text-ink uppercase tracking-wider">
+                    Attached Resume & Documents
+                  </h4>
+                  {selectedApp.resumeUrl?.includes('cloudinary.com') && (
+                    <span className="inline-flex items-center gap-1 text-[10px] text-accent font-medium bg-accent-subtle/50 px-2 py-0.5 rounded border border-accent/20">
+                      <Cloud className="w-3 h-3" />
+                      Cloudinary CDN
+                    </span>
+                  )}
+                </div>
+
                 {selectedApp.resumeUrl ? (
-                  <div className="p-3 bg-accent-subtle/50 border border-accent/30 rounded flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="p-2 bg-surface-light rounded border border-accent/20 text-accent shrink-0">
-                        <FileText className="w-5 h-5" />
+                  <div className="space-y-3">
+                    <div className="p-3 bg-accent-subtle/40 border border-accent/30 rounded flex flex-wrap items-center justify-between gap-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="p-2 bg-surface-light rounded border border-accent/20 text-accent shrink-0">
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-xs text-ink truncate max-w-xs">
+                            {selectedApp.resumeUrl.split('/').pop() || 'Candidate_Resume.pdf'}
+                          </p>
+                          <p className="text-[10px] text-muted truncate">
+                            {selectedApp.resumeUrl.startsWith('http') ? selectedApp.resumeUrl : 'Candidate submission'}
+                          </p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-xs text-ink truncate">
-                          {selectedApp.resumeUrl}
-                        </p>
-                        <p className="text-[10px] text-muted">
-                          Candidate attached document / CV record
-                        </p>
-                      </div>
+
+                      {selectedApp.resumeUrl.startsWith('http') && (
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setShowPdfEmbed(!showPdfEmbed)}
+                            className="px-2.5 py-1.5 bg-surface-light border border-border text-ink hover:bg-surface-subtle font-medium rounded text-xs transition-colors inline-flex items-center gap-1"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                            {showPdfEmbed ? 'Hide Preview' : 'Preview Document'}
+                          </button>
+                          <a
+                            href={selectedApp.resumeUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="px-3 py-1.5 bg-accent text-white font-medium rounded text-xs hover:bg-accent-hover transition-colors inline-flex items-center gap-1.5"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5" />
+                            Open File
+                          </a>
+                        </div>
+                      )}
                     </div>
-                    {selectedApp.resumeUrl.startsWith('http') && (
-                      <a
-                        href={selectedApp.resumeUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="px-3 py-1.5 bg-accent text-white font-medium rounded text-xs hover:bg-accent-hover transition-colors inline-flex items-center gap-1.5 shrink-0"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        Open File
-                      </a>
+
+                    {/* Embedded In-Browser PDF Preview */}
+                    {showPdfEmbed && selectedApp.resumeUrl.startsWith('http') && (
+                      <div className="border border-border rounded overflow-hidden bg-surface-subtle">
+                        <div className="p-2 bg-surface-subtle/80 border-b border-border flex items-center justify-between text-[11px] text-muted">
+                          <span>Document Reader</span>
+                          <a
+                            href={selectedApp.resumeUrl}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-accent hover:underline flex items-center gap-1"
+                          >
+                            <Download className="w-3 h-3" />
+                            Download
+                          </a>
+                        </div>
+                        <iframe
+                          src={selectedApp.resumeUrl}
+                          className="w-full h-80 border-0"
+                          title="Candidate Resume Preview"
+                        />
+                      </div>
                     )}
                   </div>
                 ) : (
@@ -348,7 +409,10 @@ export default function EmployerJobApplicantsPage() {
               {/* Close Button */}
               <div className="pt-2 flex justify-end">
                 <button
-                  onClick={() => setSelectedApp(null)}
+                  onClick={() => {
+                    setSelectedApp(null);
+                    setShowPdfEmbed(false);
+                  }}
                   className="px-4 py-2 border border-border rounded text-xs font-medium text-ink hover:bg-surface-subtle transition-colors"
                 >
                   Close Window

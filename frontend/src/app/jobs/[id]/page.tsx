@@ -21,6 +21,9 @@ import {
   FileCheck,
   X,
   Link as LinkIcon,
+  Loader2,
+  Cloud,
+  ExternalLink,
 } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
@@ -38,6 +41,9 @@ export default function JobDetailPage() {
   const [isApplyModalOpen, setIsApplyModalOpen] = useState(false);
   const [resumeName, setResumeName] = useState<string>('');
   const [resumeUrl, setResumeUrl] = useState<string>('');
+  const [cloudinaryUrl, setCloudinaryUrl] = useState<string>('');
+  const [isUploading, setIsUploading] = useState(false);
+  const [fileSizeText, setFileSizeText] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: jobResult, isLoading } = useQuery({
@@ -65,10 +71,12 @@ export default function JobDetailPage() {
     },
     onSuccess: (res) => {
       if (res.succes) {
-        success('Application Submitted', 'Your profile and attached resume have been sent to the employer.');
+        success('Application Submitted', 'Your candidate profile and Cloudinary-stored resume have been sent to the employer.');
         setIsApplyModalOpen(false);
         setResumeName('');
         setResumeUrl('');
+        setCloudinaryUrl('');
+        setFileSizeText('');
         queryClient.invalidateQueries({ queryKey: ['jobSeekerApplications'] });
       } else {
         toastError('Submission Failed', res.message || 'Unable to apply to this listing.');
@@ -80,19 +88,49 @@ export default function JobDetailPage() {
     },
   });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toastError('File Too Large', 'Please select a resume file smaller than 5MB.');
-        return;
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      toastError('File Too Large', 'Please select a resume file smaller than 5 MB.');
+      return;
+    }
+
+    setIsUploading(true);
+    setResumeName(file.name);
+    setFileSizeText(`${(file.size / 1024).toFixed(0)} KB`);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || 'Cloudinary upload failed.');
       }
-      setResumeName(`${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`);
+
+      setCloudinaryUrl(data.url);
+      success('Resume Uploaded', `${file.name} securely stored on Cloudinary CDN.`);
+    } catch (err: any) {
+      toastError('Upload Failed', err.message || 'Failed to upload document.');
+      setResumeName('');
+      setCloudinaryUrl('');
+    } finally {
+      setIsUploading(false);
     }
   };
 
   const handleRemoveFile = () => {
     setResumeName('');
+    setCloudinaryUrl('');
+    setFileSizeText('');
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -248,34 +286,36 @@ export default function JobDetailPage() {
           {/* Company Card */}
           <div className="p-5 bg-surface-light border border-border rounded shadow-subtle">
             <h3 className="text-xs font-semibold uppercase tracking-wider text-muted mb-3">
-              Hiring Organization
+              Employer Details
             </h3>
-            <div className="space-y-2.5 text-xs">
-              <div className="font-medium text-ink flex items-center gap-2">
-                <Building2 className="w-3.5 h-3.5 text-muted" strokeWidth={1.5} />
-                {job.companyName}
+            <div className="space-y-3 text-xs">
+              <div className="flex items-center gap-2">
+                <Building2 className="w-3.5 h-3.5 text-muted shrink-0" />
+                <span className="font-semibold text-ink">{job.companyName}</span>
               </div>
               {job.companyWebPage && (
-                <a
-                  href={job.companyWebPage.startsWith('http') ? job.companyWebPage : `https://${job.companyWebPage}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-accent hover:underline flex items-center gap-2 truncate"
-                >
-                  <Globe className="w-3.5 h-3.5 text-muted shrink-0" strokeWidth={1.5} />
-                  {job.companyWebPage}
-                </a>
+                <div className="flex items-center gap-2">
+                  <Globe className="w-3.5 h-3.5 text-muted shrink-0" />
+                  <a
+                    href={job.companyWebPage.startsWith('http') ? job.companyWebPage : `https://${job.companyWebPage}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-accent hover:underline truncate"
+                  >
+                    {job.companyWebPage}
+                  </a>
+                </div>
               )}
               {job.companyEmail && (
-                <div className="text-muted flex items-center gap-2 truncate">
-                  <Mail className="w-3.5 h-3.5 text-muted shrink-0" strokeWidth={1.5} />
-                  {job.companyEmail}
+                <div className="flex items-center gap-2">
+                  <Mail className="w-3.5 h-3.5 text-muted shrink-0" />
+                  <span className="text-muted truncate">{job.companyEmail}</span>
                 </div>
               )}
               {job.companyPhoneNumber && (
-                <div className="text-muted flex items-center gap-2 tabular-nums">
-                  <Phone className="w-3.5 h-3.5 text-muted shrink-0" strokeWidth={1.5} />
-                  {job.companyPhoneNumber}
+                <div className="flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-muted shrink-0" />
+                  <span className="text-muted tabular-nums">{job.companyPhoneNumber}</span>
                 </div>
               )}
             </div>
@@ -283,90 +323,102 @@ export default function JobDetailPage() {
         </div>
       </div>
 
-      {/* Apply Confirmation Modal with Resume Attachment */}
+      {/* Candidate Apply Modal with Cloudinary Direct Upload */}
       <Modal
         isOpen={isApplyModalOpen}
         onClose={() => setIsApplyModalOpen(false)}
-        title="Confirm Application"
-        description="Review your candidate details and attach your resume."
+        title={`Apply for ${job.jobTitle}`}
+        description={`Submit your verified credentials and resume to ${job.companyName}.`}
       >
         <div className="space-y-4 text-xs">
-          <div className="p-3.5 bg-surface-subtle/70 rounded border border-border">
-            <p className="text-muted text-[11px]">Target Position</p>
-            <p className="font-semibold text-ink text-sm mt-0.5">{job.jobTitle}</p>
-            <p className="text-muted text-[11px] mt-0.5">{job.companyName} — {job.city}</p>
+          {/* Candidate Profile Summary */}
+          <div className="p-3 bg-surface-subtle rounded border border-border space-y-1">
+            <p className="font-semibold text-ink">Candidate Details</p>
+            <p className="text-muted">{user?.name} ({user?.email})</p>
           </div>
 
-          <div className="p-3.5 bg-surface-subtle/70 rounded border border-border">
-            <p className="text-muted text-[11px]">Applicant Profile</p>
-            <p className="font-semibold text-ink text-sm mt-0.5">{user?.name}</p>
-            <p className="text-muted text-[11px] mt-0.5">{user?.email}</p>
-          </div>
-
-          {/* Resume Attachment Section */}
-          <div className="p-3.5 bg-surface-light border border-border rounded space-y-3">
-            <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-ink flex items-center gap-1.5">
-                <FileUp className="w-3.5 h-3.5 text-accent" />
-                Attach Resume / CV
-              </label>
-              <span className="text-[10px] text-muted">PDF, DOC, DOCX (Max 5MB)</span>
-            </div>
-
-            {/* Hidden native file input */}
+          {/* Cloudinary Document Upload Box */}
+          <div className="space-y-2">
+            <label className="block font-medium text-ink">Attach Resume / CV (PDF, DOCX)</label>
             <input
               type="file"
               ref={fileInputRef}
               accept=".pdf,.doc,.docx"
               onChange={handleFileChange}
+              disabled={isUploading}
               className="hidden"
             />
 
-            {resumeName ? (
-              <div className="flex items-center justify-between p-2.5 bg-accent-subtle/40 border border-accent/30 rounded">
-                <div className="flex items-center gap-2 truncate">
-                  <FileCheck className="w-4 h-4 text-accent shrink-0" />
-                  <span className="font-medium text-ink truncate text-[11px]">{resumeName}</span>
+            {isUploading ? (
+              <div className="p-4 border border-dashed border-accent/60 rounded bg-accent-subtle/30 text-center flex flex-col items-center justify-center gap-2">
+                <Loader2 className="w-5 h-5 text-accent animate-spin" />
+                <span className="text-xs font-semibold text-ink">Uploading & Compressing on Cloudinary CDN...</span>
+                <span className="text-[10px] text-muted">Optimizing document payload size</span>
+              </div>
+            ) : cloudinaryUrl ? (
+              <div className="p-3 bg-semantic-successBg/50 border border-semantic-success/30 rounded flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 truncate min-w-0">
+                  <FileCheck className="w-5 h-5 text-semantic-success shrink-0" />
+                  <div className="truncate min-w-0">
+                    <p className="font-semibold text-ink truncate text-xs">{resumeName}</p>
+                    <p className="text-[10px] text-semantic-success flex items-center gap-1">
+                      <Cloud className="w-3 h-3" />
+                      Uploaded to Cloudinary CDN • {fileSizeText}
+                    </p>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleRemoveFile}
-                  className="text-muted hover:text-semantic-danger p-1 rounded transition-colors"
-                  title="Remove file"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <a
+                    href={cloudinaryUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="p-1.5 text-accent hover:bg-accent-subtle rounded transition-colors"
+                    title="View uploaded document"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={handleRemoveFile}
+                    className="p-1.5 text-muted hover:text-semantic-danger rounded transition-colors"
+                    title="Remove file"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full py-3 px-4 border border-dashed border-border hover:border-accent rounded bg-surface-subtle/40 hover:bg-accent-subtle/20 text-center transition-colors flex flex-col items-center justify-center gap-1 text-muted hover:text-ink cursor-pointer"
+                className="w-full py-4 px-4 border border-dashed border-border hover:border-accent rounded bg-surface-subtle/40 hover:bg-accent-subtle/20 text-center transition-colors flex flex-col items-center justify-center gap-1.5 text-muted hover:text-ink cursor-pointer"
               >
-                <FileUp className="w-4 h-4 text-accent" />
-                <span className="text-xs font-medium">Click to upload your resume document</span>
-                <span className="text-[10px] text-muted">or attach via direct link below</span>
+                <div className="p-2 bg-surface-light rounded-full border border-border text-accent">
+                  <FileUp className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-semibold text-ink">Click to upload your resume (PDF / DOCX)</span>
+                <span className="text-[10px] text-muted">Direct Cloudinary CDN upload • Max 5 MB</span>
               </button>
             )}
 
-            {/* Resume Link Fallback */}
+            {/* Alternative External Link */}
             <div>
               <label className="text-[11px] text-muted flex items-center gap-1 mb-1">
                 <LinkIcon className="w-3 h-3" />
-                Or provide Resume / Portfolio Link (Optional)
+                Or provide Portfolio / LinkedIn Link (Optional)
               </label>
               <input
                 type="url"
                 value={resumeUrl}
                 onChange={(e) => setResumeUrl(e.target.value)}
-                placeholder="https://drive.google.com/... or LinkedIn"
+                placeholder="https://linkedin.com/in/... or Portfolio URL"
                 className="w-full px-3 py-1.5 bg-surface-subtle/50 border border-border rounded text-xs text-ink placeholder:text-muted/60 focus:outline-none focus:border-accent"
               />
             </div>
           </div>
 
           <p className="text-muted leading-relaxed text-[11px]">
-            By submitting, your candidate credentials and resume will be securely delivered to the employer HR recruitment pipeline.
+            Your application and attached document will be delivered to the employer hiring dashboard for immediate review.
           </p>
 
           <div className="pt-3 flex items-center justify-end gap-2 border-t border-border">
@@ -378,13 +430,13 @@ export default function JobDetailPage() {
             </button>
             <button
               onClick={() => {
-                const attachedInfo = resumeName || resumeUrl || 'Profile Credentials';
-                applyMutation.mutate(attachedInfo);
+                const finalResume = cloudinaryUrl || resumeUrl || 'Direct Candidate Application';
+                applyMutation.mutate(finalResume);
               }}
-              disabled={applyMutation.isPending}
-              className="px-4 py-2 bg-accent text-white rounded text-xs font-medium hover:bg-accent-hover transition-colors disabled:opacity-50"
+              disabled={applyMutation.isPending || isUploading}
+              className="px-4 py-2 bg-accent text-white rounded text-xs font-medium hover:bg-accent-hover transition-colors disabled:opacity-50 flex items-center gap-1.5"
             >
-              {applyMutation.isPending ? 'Submitting...' : 'Confirm Submission'}
+              {applyMutation.isPending ? 'Submitting Application...' : 'Confirm Submission'}
             </button>
           </div>
         </div>

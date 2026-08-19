@@ -8,6 +8,12 @@ import {
   JobAdvertisement,
   JobApplication,
   JobApplicationStatus,
+  Department,
+  Employee,
+  Attendance,
+  LeaveRequest,
+  Payroll,
+  LeaveType,
 } from '@/types';
 import { LoginFormData, EmployerRegisterFormData, JobSeekerRegisterFormData } from '@/schemas/authSchemas';
 import { CreateJobAdvertisementFormData } from '@/schemas/jobSchemas';
@@ -165,6 +171,168 @@ export const authApi = {
   },
 };
 
+// Department APIs
+export const departmentsApi = {
+  getAll: async (): Promise<ApiResult<Department[]>> => {
+    const res = await api.get<ApiResult<Department[]>>('/api/departments/getAll');
+    return res.data;
+  },
+
+  getById: async (id: number): Promise<ApiResult<Department>> => {
+    const res = await api.get<ApiResult<Department>>(`/api/departments/getById/${id}`);
+    return res.data;
+  },
+
+  add: async (data: { name: string; code: string; description?: string; managerName?: string }): Promise<ApiSimpleResult> => {
+    const res = await api.post<ApiSimpleResult>('/api/departments/add', data);
+    return res.data;
+  },
+
+  update: async (id: number, data: { name: string; code: string; description?: string; managerName?: string }): Promise<ApiSimpleResult> => {
+    const res = await api.put<ApiSimpleResult>(`/api/departments/update/${id}`, data);
+    return res.data;
+  },
+
+  delete: async (id: number): Promise<ApiSimpleResult> => {
+    const res = await api.delete<ApiSimpleResult>(`/api/departments/delete/${id}`);
+    return res.data;
+  },
+};
+
+// Employee APIs
+export const employeesApi = {
+  getAll: async (): Promise<ApiResult<Employee[]>> => {
+    const res = await api.get<ApiResult<Employee[]>>('/api/employees/getAll');
+    return res.data;
+  },
+
+  getById: async (id: number): Promise<ApiResult<Employee>> => {
+    const res = await api.get<ApiResult<Employee>>(`/api/employees/getById/${id}`);
+    return res.data;
+  },
+
+  getByDepartment: async (deptId: number): Promise<ApiResult<Employee[]>> => {
+    const res = await api.get<ApiResult<Employee[]>>(`/api/employees/by-department/${deptId}`);
+    return res.data;
+  },
+
+  getByEmail: async (email: string): Promise<ApiResult<Employee>> => {
+    const res = await api.get<ApiResult<Employee>>(`/api/employees/by-email?email=${encodeURIComponent(email)}`);
+    return res.data;
+  },
+
+  add: async (data: any): Promise<ApiSimpleResult> => {
+    const res = await api.post<ApiSimpleResult>('/api/employees/add', data);
+    return res.data;
+  },
+
+  update: async (id: number, data: any): Promise<ApiSimpleResult> => {
+    const res = await api.put<ApiSimpleResult>(`/api/employees/update/${id}`, data);
+    return res.data;
+  },
+
+  changePassword: async (data: { employeeId: number; oldPassword?: string; newPassword: string }): Promise<ApiSimpleResult> => {
+    const res = await api.post<ApiSimpleResult>('/api/employees/change-password', data);
+    return res.data;
+  },
+
+  delete: async (id: number): Promise<ApiSimpleResult> => {
+    const res = await api.delete<ApiSimpleResult>(`/api/employees/delete/${id}`);
+    return res.data;
+  },
+};
+
+// Attendance APIs
+export const attendanceApi = {
+  checkIn: async (employeeId: number, notes?: string): Promise<ApiSimpleResult> => {
+    const res = await api.post<ApiSimpleResult>('/api/attendance/check-in', { employeeId, notes });
+    return res.data;
+  },
+
+  checkOut: async (employeeId: number, notes?: string): Promise<ApiSimpleResult> => {
+    const res = await api.post<ApiSimpleResult>('/api/attendance/check-out', { employeeId, notes });
+    return res.data;
+  },
+
+  getToday: async (employeeId: number): Promise<ApiResult<Attendance>> => {
+    const res = await api.get<ApiResult<Attendance>>(`/api/attendance/today/${employeeId}`);
+    return res.data;
+  },
+
+  getHistory: async (employeeId: number): Promise<ApiResult<Attendance[]>> => {
+    const res = await api.get<ApiResult<Attendance[]>>(`/api/attendance/history/${employeeId}`);
+    return res.data;
+  },
+
+  getDailyOverview: async (date?: string): Promise<ApiResult<Attendance[]>> => {
+    const url = date ? `/api/attendance/daily-overview?date=${date}` : '/api/attendance/daily-overview';
+    const res = await api.get<ApiResult<Attendance[]>>(url);
+    return res.data;
+  },
+};
+
+// Leave APIs
+export const leavesApi = {
+  apply: async (data: { employeeId: number; leaveType: LeaveType; startDate: string; endDate: string; reason: string }): Promise<ApiSimpleResult> => {
+    const res = await api.post<ApiSimpleResult>('/api/leaves/apply', data);
+    return res.data;
+  },
+
+  review: async (leaveId: number, status: 'APPROVED' | 'REJECTED', rejectionReason?: string): Promise<ApiSimpleResult> => {
+    const res = await api.put<ApiSimpleResult>(`/api/leaves/${leaveId}/review`, { status, rejectionReason });
+    return res.data;
+  },
+
+  getEmployeeLeaves: async (employeeId: number): Promise<ApiResult<LeaveRequest[]>> => {
+    const res = await api.get<ApiResult<LeaveRequest[]>>(`/api/leaves/employee/${employeeId}`);
+    return res.data;
+  },
+
+  getPending: async (): Promise<ApiResult<LeaveRequest[]>> => {
+    const res = await api.get<ApiResult<LeaveRequest[]>>('/api/leaves/pending');
+    return res.data;
+  },
+
+  getAll: async (): Promise<ApiResult<LeaveRequest[]>> => {
+    const res = await api.get<ApiResult<LeaveRequest[]>>('/api/leaves/getAll');
+    return res.data;
+  },
+};
+
+// Payroll APIs
+export const payrollApi = {
+  generate: async (month: number, year: number): Promise<ApiSimpleResult> => {
+    const res = await api.post<ApiSimpleResult>('/api/payroll/generate', { month, year });
+    return res.data;
+  },
+
+  getByPeriod: async (month: number, year: number): Promise<ApiResult<Payroll[]>> => {
+    const res = await api.get<ApiResult<Payroll[]>>(`/api/payroll/by-period?month=${month}&year=${year}`);
+    return res.data;
+  },
+
+  getEmployeePayslips: async (employeeId: number): Promise<ApiResult<Payroll[]>> => {
+    const res = await api.get<ApiResult<Payroll[]>>(`/api/payroll/employee/${employeeId}`);
+    return res.data;
+  },
+
+  getById: async (id: number): Promise<ApiResult<Payroll>> => {
+    const res = await api.get<ApiResult<Payroll>>(`/api/payroll/getById/${id}`);
+    return res.data;
+  },
+
+  markAsPaid: async (id: number): Promise<ApiSimpleResult> => {
+    const res = await api.put<ApiSimpleResult>(`/api/payroll/${id}/mark-paid`);
+    return res.data;
+  },
+
+  getAll: async (): Promise<ApiResult<Payroll[]>> => {
+    const res = await api.get<ApiResult<Payroll[]>>('/api/payroll/getAll');
+    return res.data;
+  },
+};
+
+// Metadata APIs
 export const citiesApi = {
   getAll: async (): Promise<ApiResult<City[]>> => {
     const res = await api.get<ApiResult<City[]>>('/api/cities/getAll');
@@ -189,6 +357,7 @@ export const positionsApi = {
   },
 };
 
+// Recruitment APIs
 export const jobsApi = {
   getAll: async (): Promise<ApiResult<JobAdvertisement[]>> => {
     const res = await api.get<ApiResult<JobAdvertisement[]>>('/api/jobAdvertisements/getAll');

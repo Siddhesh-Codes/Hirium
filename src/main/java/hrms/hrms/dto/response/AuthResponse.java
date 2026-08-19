@@ -11,11 +11,12 @@ public class AuthResponse {
     private Integer userId;
     private String email;
     private String name;
+    private Boolean passwordChangeRequired;
 
     public AuthResponse() {
     }
 
-    public AuthResponse(String accessToken, String refreshToken, UserRole role, long expiresIn, Integer userId, String email, String name) {
+    public AuthResponse(String accessToken, String refreshToken, UserRole role, long expiresIn, Integer userId, String email, String name, Boolean passwordChangeRequired) {
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
         this.role = role;
@@ -23,6 +24,7 @@ public class AuthResponse {
         this.userId = userId;
         this.email = email;
         this.name = name;
+        this.passwordChangeRequired = passwordChangeRequired;
     }
 
     public static Builder builder() {
@@ -37,6 +39,7 @@ public class AuthResponse {
         private Integer userId;
         private String email;
         private String name;
+        private Boolean passwordChangeRequired;
 
         public Builder accessToken(String accessToken) {
             this.accessToken = accessToken;
@@ -73,8 +76,13 @@ public class AuthResponse {
             return this;
         }
 
+        public Builder passwordChangeRequired(Boolean passwordChangeRequired) {
+            this.passwordChangeRequired = passwordChangeRequired;
+            return this;
+        }
+
         public AuthResponse build() {
-            return new AuthResponse(accessToken, refreshToken, role, expiresIn, userId, email, name);
+            return new AuthResponse(accessToken, refreshToken, role, expiresIn, userId, email, name, passwordChangeRequired);
         }
     }
 
@@ -132,5 +140,13 @@ public class AuthResponse {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getPasswordChangeRequired() {
+        return passwordChangeRequired;
+    }
+
+    public void setPasswordChangeRequired(Boolean passwordChangeRequired) {
+        this.passwordChangeRequired = passwordChangeRequired;
     }
 }

@@ -25,6 +25,7 @@ frontend/build/
 *.p12
 credentials.json
 secrets.properties
+application-local.properties
 
 # Logs
 *.log

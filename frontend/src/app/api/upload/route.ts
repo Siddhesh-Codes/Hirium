@@ -3,9 +3,9 @@ import crypto from 'crypto';
 
 export async function POST(request: NextRequest) {
   try {
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || 'dctr1zxzv';
-    const apiKey = process.env.CLOUDINARY_API_KEY || '371465931468556';
-    const apiSecret = process.env.CLOUDINARY_API_SECRET || 'zu3ls2_izcxx2nZYCSyBEj2ZeBM';
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || '';
+    const apiKey = process.env.CLOUDINARY_API_KEY || '';
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || '';
 
     const formData = await request.formData();
     const file = formData.get('file') as File | null;

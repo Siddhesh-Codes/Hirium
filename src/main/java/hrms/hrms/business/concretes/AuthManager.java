@@ -12,7 +12,6 @@ import hrms.hrms.business.abstracts.EmployerService;
 import hrms.hrms.business.abstracts.JobSeekerService;
 import hrms.hrms.core.utilities.DataResult;
 import hrms.hrms.core.utilities.ErrorDataResult;
-import hrms.hrms.core.utilities.ErrorResult;
 import hrms.hrms.core.utilities.Result;
 import hrms.hrms.core.utilities.SuccessDataResult;
 import hrms.hrms.core.utilities.SuccessResult;
@@ -20,8 +19,10 @@ import hrms.hrms.dto.request.EmployerRegisterRequest;
 import hrms.hrms.dto.request.JobSeekerRegisterRequest;
 import hrms.hrms.dto.request.LoginRequest;
 import hrms.hrms.dto.response.AuthResponse;
+import hrms.hrms.entity.Employee;
 import hrms.hrms.entity.Employer;
 import hrms.hrms.entity.JobSeeker;
+import hrms.hrms.repository.EmployeeDao;
 import hrms.hrms.repository.EmployerDao;
 import hrms.hrms.repository.JobSeekerDao;
 import hrms.hrms.security.jwt.JwtService;
@@ -35,6 +36,7 @@ public class AuthManager implements AuthService {
 
     private final EmployerService employerService;
     private final JobSeekerService jobSeekerService;
+    private final EmployeeDao employeeDao;
     private final EmployerDao employerDao;
     private final JobSeekerDao jobSeekerDao;
     private final PasswordEncoder passwordEncoder;
@@ -44,6 +46,7 @@ public class AuthManager implements AuthService {
     public AuthManager(
             EmployerService employerService,
             JobSeekerService jobSeekerService,
+            EmployeeDao employeeDao,
             EmployerDao employerDao,
             JobSeekerDao jobSeekerDao,
             PasswordEncoder passwordEncoder,
@@ -52,6 +55,7 @@ public class AuthManager implements AuthService {
     ) {
         this.employerService = employerService;
         this.jobSeekerService = jobSeekerService;
+        this.employeeDao = employeeDao;
         this.employerDao = employerDao;
         this.jobSeekerDao = jobSeekerDao;
         this.passwordEncoder = passwordEncoder;
@@ -71,7 +75,27 @@ public class AuthManager implements AuthService {
 
     @Override
     public DataResult<AuthResponse> login(LoginRequest request, HttpServletResponse response) {
-        // Check Employer
+        // 1. Check Organization Employee (ADMIN, HR, EMPLOYEE)
+        Optional<Employee> empOpt = employeeDao.findByEmail(request.getEmail());
+        if (empOpt.isPresent()) {
+            Employee emp = empOpt.get();
+            if (!passwordEncoder.matches(request.getPassword(), emp.getPassword())) {
+                return new ErrorDataResult<>("Invalid email or password.");
+            }
+
+            CustomUserDetails userDetails = new CustomUserDetails(
+                    emp.getId(),
+                    emp.getEmail(),
+                    emp.getPassword(),
+                    emp.getRole(),
+                    emp.getFirstName() + " " + emp.getLastName(),
+                    emp.getPasswordChangeRequired()
+            );
+
+            return issueAuthResponse(userDetails, response, "Login successful.");
+        }
+
+        // 2. Check Employer
         Optional<Employer> employerOpt = employerDao.findByEmail(request.getEmail());
         if (employerOpt.isPresent()) {
             Employer employer = employerOpt.get();
@@ -84,13 +108,14 @@ public class AuthManager implements AuthService {
                     employer.getEmail(),
                     employer.getPassword(),
                     UserRole.EMPLOYER,
-                    employer.getCompanyName()
+                    employer.getCompanyName(),
+                    false
             );
 
             return issueAuthResponse(userDetails, response, "Login successful.");
         }
 
-        // Check Job Seeker
+        // 3. Check Job Seeker
         Optional<JobSeeker> seekerOpt = jobSeekerDao.findByEmail(request.getEmail());
         if (seekerOpt.isPresent()) {
             JobSeeker seeker = seekerOpt.get();
@@ -103,7 +128,8 @@ public class AuthManager implements AuthService {
                     seeker.getEmail(),
                     seeker.getPassword(),
                     UserRole.JOB_SEEKER,
-                    seeker.getName() + " " + seeker.getLastName()
+                    seeker.getName() + " " + seeker.getLastName(),
+                    false
             );
 
             return issueAuthResponse(userDetails, response, "Login successful.");
@@ -123,17 +149,30 @@ public class AuthManager implements AuthService {
 
         CustomUserDetails userDetails = null;
 
-        if (role == UserRole.EMPLOYER) {
+        if (role == UserRole.ADMIN || role == UserRole.HR || role == UserRole.EMPLOYEE) {
+            Optional<Employee> empOpt = employeeDao.findByEmail(email);
+            if (empOpt.isPresent()) {
+                Employee emp = empOpt.get();
+                userDetails = new CustomUserDetails(
+                        emp.getId(),
+                        emp.getEmail(),
+                        emp.getPassword(),
+                        emp.getRole(),
+                        emp.getFirstName() + " " + emp.getLastName(),
+                        emp.getPasswordChangeRequired()
+                );
+            }
+        } else if (role == UserRole.EMPLOYER) {
             Optional<Employer> employerOpt = employerDao.findByEmail(email);
             if (employerOpt.isPresent()) {
                 Employer e = employerOpt.get();
-                userDetails = new CustomUserDetails(e.getId(), e.getEmail(), e.getPassword(), UserRole.EMPLOYER, e.getCompanyName());
+                userDetails = new CustomUserDetails(e.getId(), e.getEmail(), e.getPassword(), UserRole.EMPLOYER, e.getCompanyName(), false);
             }
         } else if (role == UserRole.JOB_SEEKER) {
             Optional<JobSeeker> seekerOpt = jobSeekerDao.findByEmail(email);
             if (seekerOpt.isPresent()) {
                 JobSeeker j = seekerOpt.get();
-                userDetails = new CustomUserDetails(j.getId(), j.getEmail(), j.getPassword(), UserRole.JOB_SEEKER, j.getName() + " " + j.getLastName());
+                userDetails = new CustomUserDetails(j.getId(), j.getEmail(), j.getPassword(), UserRole.JOB_SEEKER, j.getName() + " " + j.getLastName(), false);
             }
         }
 
@@ -178,6 +217,7 @@ public class AuthManager implements AuthService {
                 .email(userDetails.getEmail())
                 .name(userDetails.getName())
                 .role(userDetails.getRole())
+                .passwordChangeRequired(userDetails.getPasswordChangeRequired())
                 .expiresIn(jwtService.getAccessTokenExpirationMs())
                 .build();
 
@@ -207,6 +247,7 @@ public class AuthManager implements AuthService {
                 .userId(userDetails.getId())
                 .email(userDetails.getEmail())
                 .name(userDetails.getName())
+                .passwordChangeRequired(userDetails.getPasswordChangeRequired())
                 .build();
 
         return new SuccessDataResult<>(authResponse, message);

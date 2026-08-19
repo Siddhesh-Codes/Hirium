@@ -101,8 +101,9 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler())
                 )
                 .authorizeHttpRequests(auth -> auth
-                        // Public Auth & Error Endpoints
+                        // Public Auth, Error, and Swagger Documentation Endpoints
                         .requestMatchers("/api/auth/**", "/error").permitAll()
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html", "/swagger-resources/**", "/webjars/**").permitAll()
 
                         // Public Read-Only Metadata & Job Board Endpoints
                         .requestMatchers(HttpMethod.GET, "/api/cities/**").permitAll()
@@ -116,15 +117,22 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/cities/add", "/api/jobPosition/add").permitAll()
                         .requestMatchers("/api/hrController/**").permitAll()
 
-                        // Employer specific protected endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/jobPost/add", "/api/jobAdvertisements/add").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.POST, "/api/applications/update-status").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/applications/by-advertisement/**").hasRole("EMPLOYER")
-                        .requestMatchers(HttpMethod.GET, "/api/jobPost/active/by-employer", "/api/jobAdvertisements/active/by-employer").hasRole("EMPLOYER")
+                        // HRMS Module Endpoints (Admin, HR, Employee)
+                        .requestMatchers("/api/departments/**").authenticated()
+                        .requestMatchers("/api/employees/**").authenticated()
+                        .requestMatchers("/api/attendance/**").authenticated()
+                        .requestMatchers("/api/leaves/**").authenticated()
+                        .requestMatchers("/api/payroll/**").authenticated()
 
-                        // Job Seeker specific protected endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/applications/apply").hasRole("JOB_SEEKER")
-                        .requestMatchers(HttpMethod.GET, "/api/applications/by-jobseeker/**").hasRole("JOB_SEEKER")
+                        // Recruitment - Employer / HR / Admin specific protected endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/jobPost/add", "/api/jobAdvertisements/add").hasAnyRole("EMPLOYER", "HR", "ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/applications/update-status").hasAnyRole("EMPLOYER", "HR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/applications/by-advertisement/**").hasAnyRole("EMPLOYER", "HR", "ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/jobPost/active/by-employer", "/api/jobAdvertisements/active/by-employer").hasAnyRole("EMPLOYER", "HR", "ADMIN")
+
+                        // Recruitment - Candidate / Employee apply endpoints
+                        .requestMatchers(HttpMethod.POST, "/api/applications/apply").hasAnyRole("JOB_SEEKER", "EMPLOYEE")
+                        .requestMatchers(HttpMethod.GET, "/api/applications/by-jobseeker/**").hasAnyRole("JOB_SEEKER", "EMPLOYEE")
 
                         // All other endpoints require authentication
                         .anyRequest().authenticated()

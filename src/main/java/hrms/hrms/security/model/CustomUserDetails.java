@@ -14,13 +14,19 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final UserRole role;
     private final String name;
+    private final Boolean passwordChangeRequired;
 
     public CustomUserDetails(Integer id, String email, String password, UserRole role, String name) {
+        this(id, email, password, role, name, false);
+    }
+
+    public CustomUserDetails(Integer id, String email, String password, UserRole role, String name, Boolean passwordChangeRequired) {
         this.id = id;
         this.email = email;
         this.password = password;
         this.role = role;
         this.name = name;
+        this.passwordChangeRequired = passwordChangeRequired != null ? passwordChangeRequired : false;
     }
 
     public Integer getId() {
@@ -37,6 +43,10 @@ public class CustomUserDetails implements UserDetails {
 
     public String getName() {
         return name;
+    }
+
+    public Boolean getPasswordChangeRequired() {
+        return passwordChangeRequired;
     }
 
     @Override

@@ -5,6 +5,7 @@ import AuthProvider from '@/components/providers/AuthProvider';
 import ToastProvider from '@/components/ui/Toast';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import ForcePasswordChangeModal from '@/components/auth/ForcePasswordChangeModal';
 
 export const metadata: Metadata = {
   title: 'Hirium',
@@ -34,6 +35,7 @@ export default function RootLayout({
             <main className="flex-1 flex flex-col">{children}</main>
             <Footer />
             <ToastProvider />
+            <ForcePasswordChangeModal />
           </AuthProvider>
         </QueryProvider>
       </body>

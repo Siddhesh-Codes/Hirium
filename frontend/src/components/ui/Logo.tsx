@@ -5,20 +5,22 @@ import clsx from 'clsx';
 interface LogoProps {
   className?: string;
   showText?: boolean;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
 export default function Logo({ className, showText = true, size = 'md' }: LogoProps) {
   const iconDimensions = {
     sm: { width: 20, height: 20, class: 'w-5 h-5' },
-    md: { width: 26, height: 26, class: 'w-6.5 h-6.5' },
-    lg: { width: 34, height: 34, class: 'w-8.5 h-8.5' },
+    md: { width: 26, height: 26, class: 'w-7 h-7' },
+    lg: { width: 36, height: 36, class: 'w-9 h-9' },
+    xl: { width: 48, height: 48, class: 'w-12 h-12' },
   };
 
   const textSizes = {
     sm: 'text-xs',
     md: 'text-sm font-semibold',
     lg: 'text-lg font-semibold',
+    xl: 'text-xl font-bold',
   };
 
   const dim = iconDimensions[size];
@@ -29,7 +31,7 @@ export default function Logo({ className, showText = true, size = 'md' }: LogoPr
       <div
         className={clsx(
           dim.class,
-          'rounded overflow-hidden bg-surface-subtle shadow-subtle border border-border/70 shrink-0 relative flex items-center justify-center'
+          'rounded-lg overflow-hidden bg-surface-subtle shadow-subtle border border-border/70 shrink-0 relative flex items-center justify-center'
         )}
       >
         <Image

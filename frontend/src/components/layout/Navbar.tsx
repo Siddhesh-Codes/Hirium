@@ -6,7 +6,20 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useAuthStore } from '@/lib/store/authStore';
 import { authApi } from '@/lib/api';
 import { useToastStore } from '@/lib/store/toastStore';
-import { Briefcase, User, LogOut, PlusCircle, FileText, Menu, X, LayoutDashboard } from 'lucide-react';
+import {
+  Briefcase,
+  User,
+  LogOut,
+  Users,
+  Building2,
+  Clock,
+  CalendarCheck,
+  CreditCard,
+  Menu,
+  X,
+  LayoutDashboard,
+  FileSpreadsheet
+} from 'lucide-react';
 import { Badge } from '@/components/ui/Badge';
 import Logo from '@/components/ui/Logo';
 import clsx from 'clsx';
@@ -31,113 +44,148 @@ export default function Navbar() {
   };
 
   const isActive = (path: string) => {
-    if (path === '/') return pathname === '/';
+    if (path === '/dashboard') return pathname === '/dashboard';
     return pathname.startsWith(path);
   };
+
+  const isHrOrAdmin = user?.role === 'ADMIN' || user?.role === 'HR' || user?.role === 'EMPLOYER';
+  const isStaff = user?.role === 'EMPLOYEE';
 
   return (
     <header className="sticky top-0 z-40 w-full bg-surface-light/95 backdrop-blur-xs border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Brand Logo */}
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-6">
             <Link href="/" className="group">
               <Logo size="md" />
             </Link>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center gap-1">
-              <Link
-                href="/jobs"
-                className={clsx(
-                  'px-3 py-1.5 text-sm rounded transition-colors font-medium',
-                  isActive('/jobs')
-                    ? 'text-accent bg-accent-subtle/50'
-                    : 'text-muted hover:text-ink hover:bg-surface-subtle'
-                )}
-              >
-                Find Jobs
-              </Link>
-
-              {isAuthenticated && (
-                <>
-                  <Link
-                    href="/dashboard"
-                    className={clsx(
-                      'px-3 py-1.5 text-sm rounded transition-colors font-medium flex items-center gap-1.5',
-                      pathname === '/dashboard'
-                        ? 'text-accent bg-accent-subtle/50'
-                        : 'text-muted hover:text-ink hover:bg-surface-subtle'
-                    )}
-                  >
-                    <LayoutDashboard className="w-3.5 h-3.5" strokeWidth={1.75} />
-                    Overview
-                  </Link>
-
-                  {user?.role === 'EMPLOYER' && (
-                    <>
-                      <Link
-                        href="/dashboard/jobs"
-                        className={clsx(
-                          'px-3 py-1.5 text-sm rounded transition-colors font-medium flex items-center gap-1.5',
-                          pathname === '/dashboard/jobs' || (pathname.startsWith('/dashboard/jobs/') && pathname !== '/dashboard/jobs/new')
-                            ? 'text-accent bg-accent-subtle/50'
-                            : 'text-muted hover:text-ink hover:bg-surface-subtle'
-                        )}
-                      >
-                        <Briefcase className="w-3.5 h-3.5" strokeWidth={1.75} />
-                        My Postings
-                      </Link>
-                      <Link
-                        href="/dashboard/jobs/new"
-                        className={clsx(
-                          'px-3 py-1.5 text-sm rounded transition-colors font-medium flex items-center gap-1.5',
-                          pathname === '/dashboard/jobs/new'
-                            ? 'text-accent bg-accent-subtle/50'
-                            : 'text-muted hover:text-ink hover:bg-surface-subtle'
-                        )}
-                      >
-                        <PlusCircle className="w-3.5 h-3.5" strokeWidth={1.75} />
-                        Post a Job
-                      </Link>
-                    </>
+            {isAuthenticated && (
+              <nav className="hidden lg:flex items-center gap-1">
+                <Link
+                  href="/dashboard"
+                  className={clsx(
+                    'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                    pathname === '/dashboard'
+                      ? 'text-accent bg-accent-subtle/50 font-semibold'
+                      : 'text-muted hover:text-ink hover:bg-surface-subtle'
                   )}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  Overview
+                </Link>
 
-                  {user?.role === 'JOB_SEEKER' && (
+                {isHrOrAdmin && (
+                  <>
                     <Link
-                      href="/dashboard/applications"
+                      href="/dashboard/employees"
                       className={clsx(
-                        'px-3 py-1.5 text-sm rounded transition-colors font-medium flex items-center gap-1.5',
-                        pathname.startsWith('/dashboard/applications')
-                          ? 'text-accent bg-accent-subtle/50'
+                        'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                        isActive('/dashboard/employees')
+                          ? 'text-accent bg-accent-subtle/50 font-semibold'
                           : 'text-muted hover:text-ink hover:bg-surface-subtle'
                       )}
                     >
-                      <FileText className="w-3.5 h-3.5" strokeWidth={1.75} />
-                      My Applications
+                      <Users className="w-3.5 h-3.5" />
+                      Employees
                     </Link>
+
+                    <Link
+                      href="/dashboard/departments"
+                      className={clsx(
+                        'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                        isActive('/dashboard/departments')
+                          ? 'text-accent bg-accent-subtle/50 font-semibold'
+                          : 'text-muted hover:text-ink hover:bg-surface-subtle'
+                      )}
+                    >
+                      <Building2 className="w-3.5 h-3.5" />
+                      Departments
+                    </Link>
+                  </>
+                )}
+
+                <Link
+                  href="/dashboard/attendance"
+                  className={clsx(
+                    'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                    isActive('/dashboard/attendance')
+                      ? 'text-accent bg-accent-subtle/50 font-semibold'
+                      : 'text-muted hover:text-ink hover:bg-surface-subtle'
                   )}
-                </>
-              )}
-            </nav>
+                >
+                  <Clock className="w-3.5 h-3.5" />
+                  Attendance
+                </Link>
+
+                <Link
+                  href="/dashboard/leaves"
+                  className={clsx(
+                    'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                    isActive('/dashboard/leaves')
+                      ? 'text-accent bg-accent-subtle/50 font-semibold'
+                      : 'text-muted hover:text-ink hover:bg-surface-subtle'
+                  )}
+                >
+                  <CalendarCheck className="w-3.5 h-3.5" />
+                  Leaves
+                </Link>
+
+                <Link
+                  href="/dashboard/payroll"
+                  className={clsx(
+                    'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                    isActive('/dashboard/payroll')
+                      ? 'text-accent bg-accent-subtle/50 font-semibold'
+                      : 'text-muted hover:text-ink hover:bg-surface-subtle'
+                  )}
+                >
+                  <CreditCard className="w-3.5 h-3.5" />
+                  Payroll
+                </Link>
+
+                <Link
+                  href="/dashboard/recruitment"
+                  className={clsx(
+                    'px-2.5 py-1.5 text-xs font-medium rounded transition-colors flex items-center gap-1.5',
+                    isActive('/dashboard/recruitment') || isActive('/dashboard/jobs')
+                      ? 'text-accent bg-accent-subtle/50 font-semibold'
+                      : 'text-muted hover:text-ink hover:bg-surface-subtle'
+                  )}
+                >
+                  <Briefcase className="w-3.5 h-3.5" />
+                  Recruitment
+                </Link>
+              </nav>
+            )}
+
+            {!isAuthenticated && (
+              <nav className="hidden md:flex items-center gap-2">
+                <Link
+                  href="/jobs"
+                  className="px-3 py-1.5 text-sm rounded font-medium text-muted hover:text-ink hover:bg-surface-subtle transition-colors"
+                >
+                  Open Positions
+                </Link>
+              </nav>
+            )}
           </div>
 
           {/* Right Action Area */}
           <div className="hidden md:flex items-center gap-3">
             {isAuthenticated && user ? (
               <div className="flex items-center gap-3">
-                <Link
-                  href="/dashboard/profile"
-                  className="flex items-center gap-2 pl-2 pr-3 py-1 bg-surface-subtle/70 hover:bg-surface-subtle rounded border border-border transition-colors text-xs font-medium text-ink"
-                >
+                <div className="flex items-center gap-2 pl-2 pr-3 py-1 bg-surface-subtle/70 rounded border border-border text-xs font-medium text-ink">
                   <div className="w-6 h-6 rounded bg-accent/20 text-accent flex items-center justify-center font-medium">
                     <User className="w-3.5 h-3.5" strokeWidth={1.75} />
                   </div>
                   <span className="max-w-[120px] truncate">{user.name}</span>
-                  <Badge variant="accent" size="sm">
-                    {user.role === 'EMPLOYER' ? 'Employer' : 'Candidate'}
+                  <Badge variant={isHrOrAdmin ? 'accent' : 'neutral'} size="sm">
+                    {user.role}
                   </Badge>
-                </Link>
+                </div>
 
                 <button
                   onClick={handleLogout}
@@ -167,7 +215,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex md:hidden items-center">
+          <div className="flex lg:hidden items-center">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-muted hover:text-ink rounded"
@@ -181,14 +229,7 @@ export default function Navbar() {
 
       {/* Mobile Navigation Dropdown */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-border bg-surface-light px-4 pt-2 pb-4 space-y-1">
-          <Link
-            href="/jobs"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
-          >
-            Find Jobs
-          </Link>
+        <div className="lg:hidden border-t border-border bg-surface-light px-4 pt-2 pb-4 space-y-1">
           {isAuthenticated && (
             <>
               <Link
@@ -196,41 +237,53 @@ export default function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
               >
-                Dashboard Overview
+                Overview
               </Link>
-              {user?.role === 'EMPLOYER' && (
+              {isHrOrAdmin && (
                 <>
                   <Link
-                    href="/dashboard/jobs"
+                    href="/dashboard/employees"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
                   >
-                    My Postings
+                    Employee Directory
                   </Link>
                   <Link
-                    href="/dashboard/jobs/new"
+                    href="/dashboard/departments"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
                   >
-                    Post a Job
+                    Departments
                   </Link>
                 </>
               )}
-              {user?.role === 'JOB_SEEKER' && (
-                <Link
-                  href="/dashboard/applications"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
-                >
-                  My Applications
-                </Link>
-              )}
               <Link
-                href="/dashboard/profile"
+                href="/dashboard/attendance"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
               >
-                Profile & Account
+                Attendance Tracking
+              </Link>
+              <Link
+                href="/dashboard/leaves"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
+              >
+                Leave Management
+              </Link>
+              <Link
+                href="/dashboard/payroll"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
+              >
+                Payroll Processing
+              </Link>
+              <Link
+                href="/dashboard/recruitment"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 text-sm font-medium text-ink rounded hover:bg-surface-subtle"
+              >
+                Recruitment
               </Link>
               <button
                 onClick={() => {

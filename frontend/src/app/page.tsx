@@ -332,14 +332,14 @@ export default function HomePage() {
                   </div>
                   <div className="space-y-2">
                     {[
-                      { name: 'Pooja Varma', role: 'HR', dept: 'Human Resources', email: 'pooja.v@hirium.com', status: 'ACTIVE' },
-                      { name: 'Rohan Deshmukh', role: 'ADMIN', dept: 'Executive Ops', email: 'rohan.d@hirium.com', status: 'ACTIVE' },
-                      { name: 'Aarav Patel', role: 'EMPLOYEE', dept: 'Engineering', email: 'aarav.p@hirium.com', status: 'ACTIVE' },
+                      { name: 'Pooja Varma', role: 'HR', dept: 'Human Resources', title: 'HR Operations Lead', status: 'ACTIVE' },
+                      { name: 'Rohan Deshmukh', role: 'ADMIN', dept: 'Executive Ops', title: 'Head of People & Ops', status: 'ACTIVE' },
+                      { name: 'Aarav Patel', role: 'EMPLOYEE', dept: 'Engineering', title: 'Senior Software Engineer', status: 'ACTIVE' },
                     ].map((emp, i) => (
                       <div key={i} className="p-3 bg-surface-light rounded-xl border border-border flex items-center justify-between text-xs">
                         <div>
                           <div className="font-bold text-ink">{emp.name}</div>
-                          <div className="text-[11px] text-muted">{emp.email} · {emp.dept}</div>
+                          <div className="text-[11px] text-muted">{emp.title} · {emp.dept}</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-subtle font-bold text-ink border border-border">

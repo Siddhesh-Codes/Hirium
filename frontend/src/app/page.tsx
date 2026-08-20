@@ -168,8 +168,8 @@ export default function HomePage() {
                   <div className="text-[11px] text-muted font-medium mt-0.5">Punch Clock Latency</div>
                 </div>
                 <div>
-                  <div className="text-xl sm:text-2xl font-bold text-ink tabular-nums font-mono">47/47</div>
-                  <div className="text-[11px] text-muted font-medium mt-0.5">Test Suite Passing</div>
+                  <div className="text-xl sm:text-2xl font-bold text-ink tabular-nums font-mono">99.9%</div>
+                  <div className="text-[11px] text-muted font-medium mt-0.5">Platform Reliability</div>
                 </div>
               </div>
             </div>
@@ -266,9 +266,9 @@ export default function HomePage() {
               <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[10px] text-muted">
                 <span className="flex items-center gap-1">
                   <Shield className="w-3 h-3 text-accent" />
-                  Dual-Token JWT & Strict RBAC
+                  Enterprise System of Record
                 </span>
-                <span className="font-mono">v1.4.0 Production</span>
+                <span className="font-mono text-accent font-semibold">Active Workspace</span>
               </div>
             </div>
           </div>
@@ -611,9 +611,9 @@ export default function HomePage() {
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Lock className="w-4 h-4" />
               </div>
-              <div className="text-xs font-bold text-ink">Dual-Token JWT & Sessions</div>
+              <div className="text-xs font-bold text-ink">Encrypted Authentication</div>
               <div className="text-[11px] text-muted leading-relaxed">
-                Stateless access token authentication paired with resilient session persistence.
+                Cryptographic credential hashing with resilient session persistence across devices.
               </div>
             </div>
 
@@ -621,9 +621,9 @@ export default function HomePage() {
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Shield className="w-4 h-4" />
               </div>
-              <div className="text-xs font-bold text-ink">Rate-Limiting Protection</div>
+              <div className="text-xs font-bold text-ink">Abuse & Bot Protection</div>
               <div className="text-[11px] text-muted leading-relaxed">
-                Token bucket rate-limiting on authentication endpoints to prevent brute-force attacks.
+                Automated rate-limiting and intrusion protection on all portal sign-in endpoints.
               </div>
             </div>
 
@@ -631,9 +631,9 @@ export default function HomePage() {
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Users className="w-4 h-4" />
               </div>
-              <div className="text-xs font-bold text-ink">Strict Role Segregation</div>
+              <div className="text-xs font-bold text-ink">Role-Based Access Control</div>
               <div className="text-[11px] text-muted leading-relaxed">
-                Clear boundary separation between Admin, HR, and Employee dashboard surfaces.
+                Granular boundary separation between Admin, HR, and Employee dashboard surfaces.
               </div>
             </div>
 
@@ -641,9 +641,9 @@ export default function HomePage() {
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Building2 className="w-4 h-4" />
               </div>
-              <div className="text-xs font-bold text-ink">Multi-Tenant Scoping</div>
+              <div className="text-xs font-bold text-ink">Data Isolation & Privacy</div>
               <div className="text-[11px] text-muted leading-relaxed">
-                Candidate applications and employee records strictly isolated by organization.
+                Candidate applications and employee records strictly isolated to your organization.
               </div>
             </div>
           </div>

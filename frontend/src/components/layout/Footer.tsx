@@ -103,8 +103,6 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} Hirium Technologies. All rights reserved.</p>
           <div className="flex items-center gap-4 text-xs text-muted">
             <span>Enterprise People Operations</span>
-            <span>·</span>
-            <span>Audited & Verified</span>
           </div>
         </div>
       </div>

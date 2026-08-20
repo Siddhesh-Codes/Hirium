@@ -30,7 +30,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Hirium — Enterprise Talent Operating System & HRMS',
+  title: 'Hirium',
   description:
     'The unified operating system for your people, shift attendance, leave balances, and automated payroll disbursements.',
   icons: {

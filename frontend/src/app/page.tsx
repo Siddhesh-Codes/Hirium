@@ -156,22 +156,6 @@ export default function HomePage() {
                   <ChevronRight className="w-4 h-4 text-muted" />
                 </a>
               </div>
-
-              {/* Metric stats ribbon */}
-              <div className="mt-10 pt-8 border-t border-border grid grid-cols-3 gap-6 max-w-lg">
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-ink tabular-nums font-mono">100%</div>
-                  <div className="text-[11px] text-muted font-medium mt-0.5">Audited Payroll Math</div>
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-ink tabular-nums font-mono">0.14s</div>
-                  <div className="text-[11px] text-muted font-medium mt-0.5">Punch Clock Latency</div>
-                </div>
-                <div>
-                  <div className="text-xl sm:text-2xl font-bold text-ink tabular-nums font-mono">99.9%</div>
-                  <div className="text-[11px] text-muted font-medium mt-0.5">Platform Reliability</div>
-                </div>
-              </div>
             </div>
 
             {/* Hero Right: THE SIGNATURE INTERACTIVE SHIFT TERMINAL */}

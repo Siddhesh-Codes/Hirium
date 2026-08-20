@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
 import {
   ArrowRight,
   Shield,
@@ -23,34 +22,9 @@ import {
   Building2,
   Send,
   Eye,
-  IndianRupee
+  IndianRupee,
+  Server
 } from 'lucide-react';
-import type { Variants } from 'framer-motion';
-import Logo from '@/components/ui/Logo';
-
-// Animation variants
-const containerVariants: Variants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.1,
-    },
-  },
-};
-
-const itemVariants: Variants = {
-  hidden: { opacity: 0, y: 16 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1] as [number, number, number, number],
-    },
-  },
-};
 
 export default function HomePage() {
   // Live ticking clock state for signature widget
@@ -63,7 +37,14 @@ export default function HomePage() {
   useEffect(() => {
     const interval = setInterval(() => {
       const now = new Date();
-      setTime(now.toLocaleTimeString('en-US', { hour12: true, hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+      setTime(
+        now.toLocaleTimeString('en-US', {
+          hour12: true,
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+        })
+      );
       if (isClockedIn) {
         setShiftSeconds((prev) => prev + 1);
       }
@@ -127,53 +108,39 @@ export default function HomePage() {
   ];
 
   return (
-    <div className="flex flex-col flex-1 bg-canvas text-ink selection:bg-accent/20">
+    <div className="flex flex-col flex-1 bg-bg-light text-ink selection:bg-accent/20">
       {/* ─────────────────────────────────────────────────────────────
           1. HERO SECTION & SIGNATURE INTERACTIVE SHIFT TERMINAL
       ───────────────────────────────────────────────────────────── */}
-      <section className="relative border-b border-border/80 pt-12 pb-16 sm:pt-16 sm:pb-24 overflow-hidden">
+      <section className="relative border-b border-border pt-12 pb-16 sm:pt-16 sm:pb-24 overflow-hidden">
         {/* Subtle architectural hairline background grid */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#12131606_1px,transparent_1px),linear-gradient(to_bottom,#12131606_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#12131608_1px,transparent_1px),linear-gradient(to_bottom,#12131608_1px,transparent_1px)] bg-[size:3.5rem_3.5rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12 lg:gap-16"
-          >
+          <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-12 lg:gap-16">
             {/* Hero Left: Value Proposition */}
             <div className="max-w-2xl">
               {/* Eyebrow badge */}
-              <motion.div variants={itemVariants} className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-accent-subtle border border-accent/25 text-xs font-semibold text-accent mb-6">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-accent-subtle border border-accent/25 text-xs font-semibold text-accent mb-6">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
                 Enterprise Talent Operating System & HRMS
-              </motion.div>
+              </div>
 
               {/* Headline with editorial Newsreader pairing */}
-              <motion.h1
-                variants={itemVariants}
-                className="font-display text-4xl sm:text-5xl lg:text-[62px] text-ink font-bold tracking-tight leading-[1.08]"
-              >
+              <h1 className="font-display text-4xl sm:text-5xl lg:text-[60px] text-ink font-bold tracking-tight leading-[1.08]">
                 Every employee, shift, and rupee.{' '}
                 <span className="italic font-normal text-ink/90 block sm:inline">
                   Audited in one place.
                 </span>
-              </motion.h1>
+              </h1>
 
               {/* Subtitle */}
-              <motion.p
-                variants={itemVariants}
-                className="mt-6 text-base sm:text-lg text-muted leading-relaxed max-w-xl font-normal"
-              >
+              <p className="mt-6 text-base sm:text-lg text-muted leading-relaxed max-w-xl font-normal">
                 Replace fragmented spreadsheets, disconnected biometric clocks, and manual payroll formulas with an auditable people-operations platform.
-              </motion.p>
+              </p>
 
               {/* Dual Action Buttons */}
-              <motion.div
-                variants={itemVariants}
-                className="mt-8 flex flex-wrap items-center gap-3.5"
-              >
+              <div className="mt-8 flex flex-wrap items-center gap-3.5">
                 <Link
                   href="/register"
                   className="px-6 py-3 bg-accent hover:bg-accent-hover text-white text-xs sm:text-sm font-bold rounded-lg shadow-sm hover:shadow-md transition-all inline-flex items-center gap-2 active:scale-[0.99]"
@@ -183,18 +150,15 @@ export default function HomePage() {
                 </Link>
                 <a
                   href="#product-surfaces"
-                  className="px-5 py-3 bg-surface-pure border border-border text-ink hover:text-accent hover:border-accent/40 text-xs sm:text-sm font-semibold rounded-lg hover:bg-surface-subtle transition-all inline-flex items-center gap-2"
+                  className="px-5 py-3 bg-surface-light border border-border text-ink hover:text-accent hover:border-accent/40 text-xs sm:text-sm font-semibold rounded-lg hover:bg-surface-subtle transition-all inline-flex items-center gap-2"
                 >
                   Explore Product Surfaces
                   <ChevronRight className="w-4 h-4 text-muted" />
                 </a>
-              </motion.div>
+              </div>
 
               {/* Metric stats ribbon */}
-              <motion.div
-                variants={itemVariants}
-                className="mt-10 pt-8 border-t border-border/80 grid grid-cols-3 gap-6 max-w-lg"
-              >
+              <div className="mt-10 pt-8 border-t border-border grid grid-cols-3 gap-6 max-w-lg">
                 <div>
                   <div className="text-xl sm:text-2xl font-bold text-ink tabular-nums font-mono">100%</div>
                   <div className="text-[11px] text-muted font-medium mt-0.5">Audited Payroll Math</div>
@@ -207,16 +171,13 @@ export default function HomePage() {
                   <div className="text-xl sm:text-2xl font-bold text-ink tabular-nums font-mono">47/47</div>
                   <div className="text-[11px] text-muted font-medium mt-0.5">Test Suite Passing</div>
                 </div>
-              </motion.div>
+              </div>
             </div>
 
             {/* Hero Right: THE SIGNATURE INTERACTIVE SHIFT TERMINAL */}
-            <motion.div
-              variants={itemVariants}
-              className="w-full lg:w-[480px] bg-surface-pure border border-border/90 rounded-2xl shadow-premium p-5 sm:p-6 relative overflow-hidden"
-            >
+            <div className="w-full lg:w-[480px] bg-surface-light border border-border/90 rounded-2xl shadow-elevated p-5 sm:p-6 relative">
               {/* Terminal top bar */}
-              <div className="flex items-center justify-between pb-4 border-b border-border/70 mb-4">
+              <div className="flex items-center justify-between pb-4 border-b border-border mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-semantic-success animate-pulse" />
                   <span className="text-xs font-bold text-ink font-mono">LIVE SHIFT TERMINAL</span>
@@ -227,7 +188,7 @@ export default function HomePage() {
               </div>
 
               {/* Active Employee Simulated Card */}
-              <div className="p-3.5 bg-surface-subtle/70 border border-border/80 rounded-xl mb-4">
+              <div className="p-3.5 bg-surface-subtle/70 border border-border rounded-xl mb-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 rounded-lg bg-accent/20 text-accent font-bold flex items-center justify-center text-xs font-mono">
@@ -240,7 +201,9 @@ export default function HomePage() {
                   </div>
                   <span
                     className={`text-[10px] font-mono px-2 py-0.5 rounded font-semibold ${
-                      isClockedIn ? 'bg-semantic-successBg text-semantic-success border border-semantic-success/20' : 'bg-surface-pure text-muted border border-border'
+                      isClockedIn
+                        ? 'bg-semantic-successBg text-semantic-success border border-semantic-success/20'
+                        : 'bg-surface-light text-muted border border-border'
                     }`}
                   >
                     {isClockedIn ? 'ON SHIFT' : 'OFF SHIFT'}
@@ -248,7 +211,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Shift Clock Timer */}
-                <div className="mt-3.5 pt-3 border-t border-border/60 flex items-center justify-between">
+                <div className="mt-3.5 pt-3 border-t border-border flex items-center justify-between">
                   <div>
                     <div className="text-[10px] text-muted uppercase tracking-wider font-semibold">Today's Duration</div>
                     <div className="text-sm font-bold text-ink font-mono tabular-nums mt-0.5">
@@ -284,38 +247,38 @@ export default function HomePage() {
               <div className="space-y-2">
                 <div className="text-[11px] font-semibold text-muted uppercase tracking-wider">Live System Events</div>
                 <div className="space-y-1.5 text-[11px] font-mono">
-                  <div className="p-2 bg-surface-subtle/40 rounded border border-border/60 flex items-center justify-between">
-                    <span className="text-ink truncate">✨ Monthly Batch Payroll Verified</span>
+                  <div className="p-2 bg-surface-subtle/40 rounded border border-border flex items-center justify-between">
+                    <span className="text-ink truncate">Monthly Batch Payroll Verified</span>
                     <span className="text-semantic-success font-semibold shrink-0">₹18,45,000 OK</span>
                   </div>
-                  <div className="p-2 bg-surface-subtle/40 rounded border border-border/60 flex items-center justify-between">
-                    <span className="text-ink truncate">🌴 Leave Request: 2d Casual</span>
+                  <div className="p-2 bg-surface-subtle/40 rounded border border-border flex items-center justify-between">
+                    <span className="text-ink truncate">Leave Request: 2d Casual</span>
                     <span className="text-accent font-semibold shrink-0">In Review</span>
                   </div>
-                  <div className="p-2 bg-surface-subtle/40 rounded border border-border/60 flex items-center justify-between">
-                    <span className="text-ink truncate">📧 Welcome Email Dispatched</span>
+                  <div className="p-2 bg-surface-subtle/40 rounded border border-border flex items-center justify-between">
+                    <span className="text-ink truncate">Welcome Email Dispatched</span>
                     <span className="text-muted shrink-0">Credentials Sent</span>
                   </div>
                 </div>
               </div>
 
               {/* Terminal footer note */}
-              <div className="mt-4 pt-3 border-t border-border/70 flex items-center justify-between text-[10px] text-muted">
+              <div className="mt-4 pt-3 border-t border-border flex items-center justify-between text-[10px] text-muted">
                 <span className="flex items-center gap-1">
                   <Shield className="w-3 h-3 text-accent" />
                   Dual-Token JWT & Strict RBAC
                 </span>
                 <span className="font-mono">v1.4.0 Production</span>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* ─────────────────────────────────────────────────────────────
           2. PRODUCT DEPTH SECTION (INTERACTIVE TABBED PRODUCT STAGE)
       ───────────────────────────────────────────────────────────── */}
-      <section id="product-surfaces" className="py-16 sm:py-24 border-b border-border/80 bg-surface-pure">
+      <section id="product-surfaces" className="py-16 sm:py-24 border-b border-border bg-surface-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Section Heading */}
           <div className="max-w-3xl mb-12">
@@ -331,7 +294,7 @@ export default function HomePage() {
           </div>
 
           {/* Interactive Surface Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-3 border-b border-border/80 mb-8 scrollbar-none">
+          <div className="flex items-center gap-2 overflow-x-auto pb-3 border-b border-border mb-8">
             {productSurfaces.map((surface, idx) => (
               <button
                 key={surface.id}
@@ -372,244 +335,207 @@ export default function HomePage() {
             </div>
 
             {/* Right Interactive Surface Mockup */}
-            <div className="lg:col-span-7 bg-canvas border border-border rounded-2xl p-5 sm:p-7 shadow-elevated">
-              <AnimatePresence mode="wait">
-                {/* 1. Employee Registry Preview */}
-                {activeSurfaceTab === 0 && (
-                  <motion.div
-                    key="tab-directory"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
-                      <span className="font-bold text-ink flex items-center gap-2">
-                        <Users className="w-4 h-4 text-accent" />
-                        Personnel Directory (124 Active)
-                      </span>
-                      <span className="text-[11px] font-mono text-muted">Auto-Synced</span>
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        { name: 'Pooja Varma', role: 'HR', dept: 'Human Resources', email: 'pooja.v@hirium.com', status: 'ACTIVE' },
-                        { name: 'Rohan Deshmukh', role: 'ADMIN', dept: 'Executive Ops', email: 'rohan.d@hirium.com', status: 'ACTIVE' },
-                        { name: 'Aarav Patel', role: 'EMPLOYEE', dept: 'Engineering', email: 'aarav.p@hirium.com', status: 'ACTIVE' },
-                      ].map((emp, i) => (
-                        <div key={i} className="p-3 bg-surface-pure rounded-xl border border-border/80 flex items-center justify-between text-xs">
-                          <div>
-                            <div className="font-bold text-ink">{emp.name}</div>
-                            <div className="text-[11px] text-muted">{emp.email} · {emp.dept}</div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-subtle font-bold text-ink border border-border">
-                              {emp.role}
-                            </span>
-                            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-semantic-successBg text-semantic-success font-bold">
-                              {emp.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* 2. Shift Attendance Preview */}
-                {activeSurfaceTab === 1 && (
-                  <motion.div
-                    key="tab-attendance"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
-                      <span className="font-bold text-ink flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-accent" />
-                        Today's Shift Punch Ledger
-                      </span>
-                      <span className="text-[11px] font-mono text-semantic-success font-semibold">96.8% Punctual</span>
-                    </div>
-                    <div className="space-y-2">
-                      {[
-                        { name: 'Aarav Patel', in: '09:00 AM', out: '06:00 PM', duration: '9h 00m', status: 'PRESENT' },
-                        { name: 'Neha Joshi', in: '09:12 AM', out: '06:30 PM', duration: '9h 18m', status: 'LATE' },
-                        { name: 'Vikram Singh', in: '08:55 AM', out: '05:55 PM', duration: '9h 00m', status: 'PRESENT' },
-                      ].map((item, i) => (
-                        <div key={i} className="p-3 bg-surface-pure rounded-xl border border-border/80 flex items-center justify-between text-xs">
-                          <div>
-                            <div className="font-bold text-ink">{item.name}</div>
-                            <div className="text-[11px] font-mono text-muted">In: {item.in} → Out: {item.out}</div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-xs font-mono font-bold text-ink tabular-nums">{item.duration}</span>
-                            <span
-                              className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
-                                item.status === 'PRESENT'
-                                  ? 'bg-semantic-successBg text-semantic-success'
-                                  : 'bg-amber-100 text-amber-800'
-                              }`}
-                            >
-                              {item.status}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* 3. Leave Approvals Preview */}
-                {activeSurfaceTab === 2 && (
-                  <motion.div
-                    key="tab-leaves"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
-                      <span className="font-bold text-ink flex items-center gap-2">
-                        <CalendarCheck className="w-4 h-4 text-accent" />
-                        Pending Leave Request
-                      </span>
-                      <span className="text-[11px] font-mono text-muted">Quota Auto-Deduction</span>
-                    </div>
-
-                    <div className="p-4 bg-surface-pure rounded-xl border border-border/80 space-y-3">
-                      <div className="flex items-center justify-between">
+            <div className="lg:col-span-7 bg-bg-light border border-border rounded-2xl p-5 sm:p-7 shadow-elevated">
+              {/* 1. Employee Registry Preview */}
+              {activeSurfaceTab === 0 && (
+                <div className="space-y-3 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
+                    <span className="font-bold text-ink flex items-center gap-2">
+                      <Users className="w-4 h-4 text-accent" />
+                      Personnel Directory (124 Active)
+                    </span>
+                    <span className="text-[11px] font-mono text-muted">Auto-Synced</span>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'Pooja Varma', role: 'HR', dept: 'Human Resources', email: 'pooja.v@hirium.com', status: 'ACTIVE' },
+                      { name: 'Rohan Deshmukh', role: 'ADMIN', dept: 'Executive Ops', email: 'rohan.d@hirium.com', status: 'ACTIVE' },
+                      { name: 'Aarav Patel', role: 'EMPLOYEE', dept: 'Engineering', email: 'aarav.p@hirium.com', status: 'ACTIVE' },
+                    ].map((emp, i) => (
+                      <div key={i} className="p-3 bg-surface-light rounded-xl border border-border flex items-center justify-between text-xs">
                         <div>
-                          <div className="text-xs font-bold text-ink">Vikram Singh · Engineering</div>
-                          <div className="text-[11px] text-muted">Casual Leave (2 Days) · Aug 24 - Aug 25</div>
+                          <div className="font-bold text-ink">{emp.name}</div>
+                          <div className="text-[11px] text-muted">{emp.email} · {emp.dept}</div>
                         </div>
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-accent-subtle text-accent font-bold">
-                          Balance: 12d Left
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-surface-subtle font-bold text-ink border border-border">
+                            {emp.role}
+                          </span>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-semantic-successBg text-semantic-success font-bold">
+                            {emp.status}
+                          </span>
+                        </div>
                       </div>
-                      <p className="text-xs text-muted italic bg-surface-subtle/50 p-2.5 rounded">
-                        "Attending family wedding in Pune. All sprint deliverables handed over."
-                      </p>
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                      <div className="flex items-center justify-end gap-2 pt-1">
-                        {demoLeaveApproved === null ? (
-                          <>
-                            <button
-                              onClick={() => setDemoLeaveApproved(false)}
-                              className="px-3 py-1.5 border border-border text-xs font-bold text-muted hover:text-semantic-danger rounded-lg transition-colors"
-                            >
-                              Reject
-                            </button>
-                            <button
-                              onClick={() => setDemoLeaveApproved(true)}
-                              className="px-3.5 py-1.5 bg-accent text-white text-xs font-bold rounded-lg hover:bg-accent-hover transition-colors shadow-xs"
-                            >
-                              Approve Leave
-                            </button>
-                          </>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={`text-xs font-bold font-mono px-3 py-1 rounded-lg ${
-                                demoLeaveApproved
-                                  ? 'bg-semantic-successBg text-semantic-success'
-                                  : 'bg-semantic-dangerBg text-semantic-danger'
-                              }`}
-                            >
-                              {demoLeaveApproved ? '✓ Approved & Balance Deducted' : '✕ Leave Request Rejected'}
-                            </span>
-                            <button
-                              onClick={() => setDemoLeaveApproved(null)}
-                              className="p-1 text-muted hover:text-ink"
-                              title="Reset"
-                            >
-                              <RotateCcw className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                        )}
+              {/* 2. Shift Attendance Preview */}
+              {activeSurfaceTab === 1 && (
+                <div className="space-y-3 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
+                    <span className="font-bold text-ink flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-accent" />
+                      Today's Shift Punch Ledger
+                    </span>
+                    <span className="text-[11px] font-mono text-semantic-success font-semibold">96.8% Punctual</span>
+                  </div>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'Aarav Patel', in: '09:00 AM', out: '06:00 PM', duration: '9h 00m', status: 'PRESENT' },
+                      { name: 'Neha Joshi', in: '09:12 AM', out: '06:30 PM', duration: '9h 18m', status: 'LATE' },
+                      { name: 'Vikram Singh', in: '08:55 AM', out: '05:55 PM', duration: '9h 00m', status: 'PRESENT' },
+                    ].map((item, i) => (
+                      <div key={i} className="p-3 bg-surface-light rounded-xl border border-border flex items-center justify-between text-xs">
+                        <div>
+                          <div className="font-bold text-ink">{item.name}</div>
+                          <div className="text-[11px] font-mono text-muted">In: {item.in} → Out: {item.out}</div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xs font-mono font-bold text-ink tabular-nums">{item.duration}</span>
+                          <span
+                            className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
+                              item.status === 'PRESENT'
+                                ? 'bg-semantic-successBg text-semantic-success'
+                                : 'bg-amber-100 text-amber-800'
+                            }`}
+                          >
+                            {item.status}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                )}
+                    ))}
+                  </div>
+                </div>
+              )}
 
-                {/* 4. Automated Payroll Preview */}
-                {activeSurfaceTab === 3 && (
-                  <motion.div
-                    key="tab-payroll"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
-                      <span className="font-bold text-ink flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-accent" />
-                        Salary Calculation Ledger
-                      </span>
-                      <span className="text-[11px] font-mono text-semantic-success font-semibold">Processed</span>
-                    </div>
+              {/* 3. Leave Approvals Preview */}
+              {activeSurfaceTab === 2 && (
+                <div className="space-y-3 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
+                    <span className="font-bold text-ink flex items-center gap-2">
+                      <CalendarCheck className="w-4 h-4 text-accent" />
+                      Pending Leave Request
+                    </span>
+                    <span className="text-[11px] font-mono text-muted">Quota Auto-Deduction</span>
+                  </div>
 
-                    <div className="p-4 bg-surface-pure rounded-xl border border-border/80 space-y-3 font-mono text-xs">
-                      <div className="flex items-center justify-between border-b border-border/60 pb-2">
-                        <span className="text-muted">Basic Monthly Salary</span>
-                        <span className="font-bold text-ink">₹85,000</span>
-                      </div>
-                      <div className="flex items-center justify-between text-semantic-success">
-                        <span>+ HRA & Allowances (15%)</span>
-                        <span className="font-bold">+ ₹12,750</span>
-                      </div>
-                      <div className="flex items-center justify-between text-semantic-danger">
-                        <span>- Statutory Deductions (10%)</span>
-                        <span className="font-bold">- ₹8,500</span>
-                      </div>
-                      <div className="pt-2 border-t border-border flex items-center justify-between text-sm">
-                        <span className="font-bold text-ink">Net Payable Disbursement</span>
-                        <span className="font-bold text-accent text-base">₹89,250</span>
-                      </div>
-                    </div>
-                  </motion.div>
-                )}
-
-                {/* 5. Recruitment Preview */}
-                {activeSurfaceTab === 4 && (
-                  <motion.div
-                    key="tab-recruitment"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2 }}
-                    className="space-y-3"
-                  >
-                    <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
-                      <span className="font-bold text-ink flex items-center gap-2">
-                        <Briefcase className="w-4 h-4 text-accent" />
-                        Candidate Pipeline & In-Browser CV Preview
-                      </span>
-                      <span className="text-[11px] font-mono text-muted">Isolated Tenant</span>
-                    </div>
-
-                    <div className="p-3.5 bg-surface-pure rounded-xl border border-border/80 flex items-center justify-between text-xs">
+                  <div className="p-4 bg-surface-light rounded-xl border border-border space-y-3">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <div className="font-bold text-ink">Rahul Sharma</div>
-                        <div className="text-[11px] text-muted">Applying for: Lead Frontend Architect</div>
-                        <div className="text-[10px] text-muted/80 font-mono mt-0.5">Resume: rahul_sharma_lead_cv.pdf</div>
+                        <div className="text-xs font-bold text-ink">Vikram Singh · Engineering</div>
+                        <div className="text-[11px] text-muted">Casual Leave (2 Days) · Aug 24 - Aug 25</div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-accent-subtle text-accent font-bold border border-accent/20">
-                          In Review
-                        </span>
-                        <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-surface-subtle text-ink font-semibold border border-border">
-                          PDF Attached
-                        </span>
-                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-accent-subtle text-accent font-bold">
+                        Balance: 12d Left
+                      </span>
                     </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+                    <p className="text-xs text-muted italic bg-surface-subtle/50 p-2.5 rounded">
+                      "Attending family wedding in Pune. All sprint deliverables handed over."
+                    </p>
+
+                    <div className="flex items-center justify-end gap-2 pt-1">
+                      {demoLeaveApproved === null ? (
+                        <>
+                          <button
+                            onClick={() => setDemoLeaveApproved(false)}
+                            className="px-3 py-1.5 border border-border text-xs font-bold text-muted hover:text-semantic-danger rounded-lg transition-colors"
+                          >
+                            Reject
+                          </button>
+                          <button
+                            onClick={() => setDemoLeaveApproved(true)}
+                            className="px-3.5 py-1.5 bg-accent text-white text-xs font-bold rounded-lg hover:bg-accent-hover transition-colors shadow-xs"
+                          >
+                            Approve Leave
+                          </button>
+                        </>
+                      ) : (
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-xs font-bold font-mono px-3 py-1 rounded-lg ${
+                              demoLeaveApproved
+                                ? 'bg-semantic-successBg text-semantic-success'
+                                : 'bg-semantic-dangerBg text-semantic-danger'
+                            }`}
+                          >
+                            {demoLeaveApproved ? '✓ Approved & Balance Deducted' : '✕ Leave Request Rejected'}
+                          </span>
+                          <button
+                            onClick={() => setDemoLeaveApproved(null)}
+                            className="p-1 text-muted hover:text-ink"
+                            title="Reset"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Automated Payroll Preview */}
+              {activeSurfaceTab === 3 && (
+                <div className="space-y-3 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
+                    <span className="font-bold text-ink flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-accent" />
+                      Salary Calculation Ledger
+                    </span>
+                    <span className="text-[11px] font-mono text-semantic-success font-semibold">Processed</span>
+                  </div>
+
+                  <div className="p-4 bg-surface-light rounded-xl border border-border space-y-3 font-mono text-xs">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                      <span className="text-muted">Basic Monthly Salary</span>
+                      <span className="font-bold text-ink">₹85,000</span>
+                    </div>
+                    <div className="flex items-center justify-between text-semantic-success">
+                      <span>+ HRA & Allowances (15%)</span>
+                      <span className="font-bold">+ ₹12,750</span>
+                    </div>
+                    <div className="flex items-center justify-between text-semantic-danger">
+                      <span>- Statutory Deductions (10%)</span>
+                      <span className="font-bold">- ₹8,500</span>
+                    </div>
+                    <div className="pt-2 border-t border-border flex items-center justify-between text-sm">
+                      <span className="font-bold text-ink">Net Payable Disbursement</span>
+                      <span className="font-bold text-accent text-base">₹89,250</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Recruitment Preview */}
+              {activeSurfaceTab === 4 && (
+                <div className="space-y-3 animate-in fade-in duration-200">
+                  <div className="flex items-center justify-between pb-3 border-b border-border text-xs">
+                    <span className="font-bold text-ink flex items-center gap-2">
+                      <Briefcase className="w-4 h-4 text-accent" />
+                      Candidate Pipeline & In-Browser CV Preview
+                    </span>
+                    <span className="text-[11px] font-mono text-muted">Isolated Tenant</span>
+                  </div>
+
+                  <div className="p-3.5 bg-surface-light rounded-xl border border-border flex items-center justify-between text-xs">
+                    <div>
+                      <div className="font-bold text-ink">Rahul Sharma</div>
+                      <div className="text-[11px] text-muted">Applying for: Lead Frontend Architect</div>
+                      <div className="text-[10px] text-muted/80 font-mono mt-0.5">Resume: rahul_sharma_lead_cv.pdf</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-accent-subtle text-accent font-bold border border-accent/20">
+                        In Review
+                      </span>
+                      <span className="text-[10px] font-mono px-2.5 py-1 rounded bg-surface-subtle text-ink font-semibold border border-border">
+                        PDF Attached
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -618,7 +544,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────
           3. THREE-STAGE DEPLOYMENT SEQUENCE (HOW IT WORKS)
       ───────────────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 border-b border-border/80 bg-canvas">
+      <section className="py-16 sm:py-24 border-b border-border bg-bg-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mb-12">
             <div className="text-xs font-bold text-accent uppercase tracking-wider mb-2">
@@ -631,7 +557,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Step 1 */}
-            <div className="p-6 bg-surface-pure rounded-2xl border border-border/80 space-y-3 relative">
+            <div className="p-6 bg-surface-light rounded-2xl border border-border space-y-3 relative shadow-subtle">
               <div className="w-8 h-8 rounded-lg bg-ink text-white font-mono text-xs font-bold flex items-center justify-center">
                 01
               </div>
@@ -642,7 +568,7 @@ export default function HomePage() {
             </div>
 
             {/* Step 2 */}
-            <div className="p-6 bg-surface-pure rounded-2xl border border-border/80 space-y-3 relative">
+            <div className="p-6 bg-surface-light rounded-2xl border border-border space-y-3 relative shadow-subtle">
               <div className="w-8 h-8 rounded-lg bg-accent text-white font-mono text-xs font-bold flex items-center justify-center">
                 02
               </div>
@@ -653,7 +579,7 @@ export default function HomePage() {
             </div>
 
             {/* Step 3 */}
-            <div className="p-6 bg-surface-pure rounded-2xl border border-border/80 space-y-3 relative">
+            <div className="p-6 bg-surface-light rounded-2xl border border-border space-y-3 relative shadow-subtle">
               <div className="w-8 h-8 rounded-lg bg-ink text-white font-mono text-xs font-bold flex items-center justify-center">
                 03
               </div>
@@ -669,7 +595,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────
           4. ENTERPRISE SECURITY & AUDIT ARCHITECTURE
       ───────────────────────────────────────────────────────────── */}
-      <section className="py-16 sm:py-24 border-b border-border/80 bg-surface-pure">
+      <section className="py-16 sm:py-24 border-b border-border bg-surface-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mb-12">
             <div className="text-xs font-bold text-accent uppercase tracking-wider mb-2">
@@ -681,7 +607,7 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-5 bg-canvas rounded-xl border border-border space-y-2">
+            <div className="p-5 bg-bg-light rounded-xl border border-border space-y-2">
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Lock className="w-4 h-4" />
               </div>
@@ -691,7 +617,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="p-5 bg-canvas rounded-xl border border-border space-y-2">
+            <div className="p-5 bg-bg-light rounded-xl border border-border space-y-2">
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Shield className="w-4 h-4" />
               </div>
@@ -701,7 +627,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="p-5 bg-canvas rounded-xl border border-border space-y-2">
+            <div className="p-5 bg-bg-light rounded-xl border border-border space-y-2">
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Users className="w-4 h-4" />
               </div>
@@ -711,7 +637,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="p-5 bg-canvas rounded-xl border border-border space-y-2">
+            <div className="p-5 bg-bg-light rounded-xl border border-border space-y-2">
               <div className="w-8 h-8 rounded-md bg-accent/15 text-accent flex items-center justify-center">
                 <Building2 className="w-4 h-4" />
               </div>
@@ -727,7 +653,7 @@ export default function HomePage() {
       {/* ─────────────────────────────────────────────────────────────
           5. HIGH-CONVICTION FINAL CTA
       ───────────────────────────────────────────────────────────── */}
-      <section className="py-20 sm:py-28 bg-gradient-to-b from-canvas via-canvas to-accent-subtle/30">
+      <section className="py-20 sm:py-28 bg-gradient-to-b from-bg-light via-bg-light to-accent-subtle/30">
         <div className="max-w-4xl mx-auto px-4 text-center space-y-6">
           <h2 className="font-display text-3xl sm:text-5xl text-ink font-bold tracking-tight">
             Build your organization's people operations on solid ground.
@@ -745,7 +671,7 @@ export default function HomePage() {
             </Link>
             <Link
               href="/login"
-              className="px-6 py-3.5 bg-surface-pure border border-border text-ink font-semibold rounded-lg hover:bg-surface-subtle transition-all text-xs sm:text-sm"
+              className="px-6 py-3.5 bg-surface-light border border-border text-ink font-semibold rounded-lg hover:bg-surface-subtle transition-all text-xs sm:text-sm"
             >
               Sign In to Existing Portal
             </Link>

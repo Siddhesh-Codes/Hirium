@@ -17,43 +17,43 @@
 
 ---
 
-## 🌟 Core Modules & Capabilities
+## Core Modules & Capabilities
 
-### 1. 👥 Employee Directory & Lifecycle Management
+### 1. Employee Directory & Lifecycle Management
 - **Centralized Staff Registry**: Full CRUD operations for employees with searchable department, role, salary, and designation filtering.
 - **Automated Onboarding Engine**: One-click onboarding with auto-generated secure credentials.
 - **Automated Email Dispatch**: Sends an official welcome letter via Gmail SMTP containing login details and temporary credentials.
 - **Mandatory First-Login Password Change**: Forces new employees to set their own private password upon initial login.
-- **In-App Confirmation Modals**: Modern dialogs for destructive actions (no browser `confirm()` or `alert()`).
+- **In-App Confirmation Modals**: Modern dialogs for destructive actions without relying on native browser alerts.
 
-### 2. 🏢 Department Architecture
+### 2. Department Architecture
 - **Organizational Structuring**: Create and manage organizational departments with custom codes (`ENG`, `HR`, `FIN`, `MKT`).
 - **Department Leadership**: Assign designated department heads and track real-time active headcount.
 
-### 3. ⏱️ Attendance & Time Tracking
+### 3. Attendance & Time Tracking
 - **Smart Shift Punch Clock**: Real-time punch-in / punch-out mechanism with daily duration calculation.
 - **Overtime & Anomaly Detection**: Tracks total working hours and flags deviations.
 - **Enterprise Attendance Logs**: Date-filtered audit logs across all company staff.
 
-### 4. 🌴 Leave Management & Approval Engine
+### 4. Leave Management & Approval Engine
 - **Multi-Category Leave Quotas**: Supports Annual, Sick, and Casual leave allocations.
 - **Role-Based Workflow**: Employees submit requests with reason notes; HR & Admins review, approve, or reject with real-time balance deductions.
 
-### 5. 💰 Payroll Processing & Payslip Engine
+### 5. Payroll Processing & Payslip Engine
 - **Automated Batch Processing**: Calculates monthly payouts based on `Basic Salary + Allowances (15%) - Statutory Deductions (10%) = Net Payable`.
 - **Payment Lifecycle**: Track `PROCESSED` vs `PAID` statuses with disbursement dates.
 - **Printable Payslips**: Formal company-branded salary slips with detailed earnings/deductions breakdown and print capability.
 
-### 6. 💼 Recruitment & Talent Acquisition
-- **Public Job Board**: Search and filter active job openings with INR (₹) salary benchmarks and deadlines.
+### 6. Recruitment & Talent Acquisition
+- **Public Job Board**: Search and filter active job openings with INR (Rs. / INR) salary benchmarks and deadlines.
 - **Direct Candidate Applications**: Public applicants submit applications without requiring employee portal accounts.
-- **Cloudinary CDN Integration**: Resume / CV uploads (PDF/DOCX) stored securely on Cloudinary CDN with in-browser preview.
+- **Secure Resume Storage**: Candidate resume documents (PDF/DOCX) stored in the cloud with instant in-browser preview.
 - **Multi-Company Pipeline Isolation**: Strict tenant scoping ensuring companies only view their own candidate pipelines.
 - **Candidate Pipeline Tracking**: Review applicants and transition statuses (`PENDING`, `SHORTLISTED`, `HIRED`, `REJECTED`).
 
 ---
 
-## 🛡️ Enterprise Security & Validation
+## Enterprise Security & Validation
 
 - **Strict Mobile Number Validation**:
   - Rejects dummy numbers (e.g. `1234567890`, `0123456789`, `9876543210`).
@@ -70,7 +70,7 @@
 
 ---
 
-## 🏗️ System Architecture
+## System Architecture
 
 ```
 [ Public Visitors & Candidates ]       [ Authenticated Employees / HR / Admins ]
@@ -87,26 +87,26 @@
                                     │
                   ┌─────────────────┼─────────────────┐
                   ▼                 ▼                 ▼
-          [ Neon PostgreSQL ] [ Gmail SMTP ]  [ Cloudinary CDN ]
-          (Serverless DB)     (Onboarding)    (Resume Storage)
+          [ Neon PostgreSQL ] [ Gmail SMTP ]  [ Resume Storage ]
+          (Serverless DB)     (Onboarding)    (Cloud Storage)
 ```
 
 ---
 
-## 💻 Technology Stack
+## Technology Stack
 
 | Layer | Technologies & Frameworks |
 | :--- | :--- |
-| **Frontend** | Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, TanStack Query (React Query), React Hook Form, Zod, Lucide Icons, Zustand |
+| **Frontend** | Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, Framer Motion, TanStack Query (React Query), React Hook Form, Zod, Lucide Icons, Zustand |
 | **Backend** | Java 17, Spring Boot 3, Spring Data JPA / Hibernate, Spring Security (JWT HS256), JavaMailSender, HikariCP |
 | **Database** | PostgreSQL on Neon Serverless with connection pooling |
-| **Cloud & Media** | Cloudinary CDN (Document / Resume storage), Gmail SMTP (Transactional emails) |
+| **Cloud & Media** | Cloud Document Storage (Resume and attachments), Gmail SMTP (Transactional emails) |
 | **Testing** | JUnit 5, MockMvc, AssertJ (**47 automated unit & integration tests**) |
 | **DevOps** | Docker, Multi-Stage Containerization, Vercel, Render |
 
 ---
 
-## 🚀 Live Production Deployment
+## Live Production Deployment
 
 - **Frontend URL**: [https://hirium.vercel.app](https://hirium.vercel.app)
 - **Backend API URL**: [https://hirium-backend.onrender.com](https://hirium-backend.onrender.com)
@@ -114,7 +114,7 @@
 
 ---
 
-## ⚙️ Local Development Setup
+## Local Development Setup
 
 ### Prerequisites
 - **Java 17+** (JDK 17 or 21)
@@ -154,7 +154,7 @@ npm run dev
 
 ---
 
-## 🧪 Automated Testing
+## Automated Testing
 
 The backend includes a comprehensive test suite covering all HRMS business logic, authentication, recruitment, payroll calculations, and security authorization.
 
@@ -173,7 +173,7 @@ The backend includes a comprehensive test suite covering all HRMS business logic
 
 ---
 
-## 📚 API Reference
+## API Reference
 
 ### Authentication (`/api/auth`)
 | Method | Endpoint | Access | Description |
@@ -238,6 +238,6 @@ The backend includes a comprehensive test suite covering all HRMS business logic
 
 ---
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.

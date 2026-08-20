@@ -32,6 +32,13 @@ public class EmployerManager implements EmployerService {
 		if (!request.getPassword().equals(request.getConfirmPassword())) {
 			return new ErrorResult("Passwords do not match.");
 		}
+		if (request.getPassword().length() < 8) {
+			return new ErrorResult("Password must be at least 8 characters.");
+		}
+		String phoneDigits = request.getPhoneNumber() != null ? request.getPhoneNumber().replaceAll("[\\s\\-().+]", "") : "";
+		if (phoneDigits.length() < 10 || phoneDigits.length() > 14 || phoneDigits.contains("1234567890") || phoneDigits.matches("^(\\d)\\1{9,}$")) {
+			return new ErrorResult("Invalid mobile number format. Please provide a valid 10-digit mobile number.");
+		}
 		if (employerDao.findByEmail(request.getEmail()).isPresent()) {
 			return new ErrorResult("Email is already in use.");
 		}

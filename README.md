@@ -6,80 +6,118 @@
 ![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-14%20App%20Router-black?style=for-the-badge&logo=next.js&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon%20Serverless-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![Security](https://img.shields.io/badge/Security-Dual%20Token%20JWT%20%7C%20BCrypt-red?style=for-the-badge&logo=springsecurity&logoColor=white)
-![Tests](https://img.shields.io/badge/Tests-40%2F40%20Passing-brightgreen?style=for-the-badge&logo=junit5&logoColor=white)
+![Security](https://img.shields.io/badge/Security-Strict%20RBAC%20%7C%20BCrypt%20%7C%20JWT-red?style=for-the-badge&logo=springsecurity&logoColor=white)
+![Tests](https://img.shields.io/badge/Tests-47%2F47%20Passing-brightgreen?style=for-the-badge&logo=junit5&logoColor=white)
 
-**A secure, modern Human Resource Management & Talent Operating System connecting verified employers with qualified professionals.**
+**A full-stack, enterprise-grade Human Resource Management System (HRMS) & Talent Operating System featuring automated payroll, employee lifecycle management, attendance tracking, leave approval workflows, public recruitment pipeline, and automated email onboarding.**
 
-[Live Application](https://hirium.vercel.app) • [API Documentation](#api-reference) • [Architecture](#system-architecture) • [Deployment](#live-production-deployment)
+[Live Application](https://hirium.vercel.app) • [API Documentation](#api-reference) • [System Architecture](#system-architecture) • [Security & Validation](#enterprise-security--validation) • [Deployment](#live-production-deployment)
 
 </div>
 
 ---
 
-## Highlights & Key Features
+## 🌟 Core Modules & Capabilities
 
-### Employer Pipeline
-- **Job Advertisement Publishing**: Post structured listings with department titles, Indian metropolitan hubs, INR (Rs. / ₹) salary benchmarks, and application deadlines.
-- **Dynamic Catalog Quick-Add**: Inline creation of custom Job Positions and City locations directly from the job creation workflow.
-- **Candidate Review Modal**: Inspect candidate details, review attached resumes/CVs, and make immediate Approve, Reject, or Pending hiring decisions with live status updates.
+### 1. 👥 Employee Directory & Lifecycle Management
+- **Centralized Staff Registry**: Full CRUD operations for employees with searchable department, role, salary, and designation filtering.
+- **Automated Onboarding Engine**: One-click onboarding with auto-generated secure credentials.
+- **Automated Email Dispatch**: Sends an official welcome letter via Gmail SMTP containing login details and temporary credentials.
+- **Mandatory First-Login Password Change**: Forces new employees to set their own private password upon initial login.
+- **In-App Confirmation Modals**: Modern dialogs for destructive actions (no browser `confirm()` or `alert()`).
 
-### Candidate Experience
-- **Public & Authenticated Job Discovery**: Search and filter opportunities by keyword, city, position title, and salary threshold.
-- **Streamlined Applications**: Submit job applications with attached resume documents (PDF/DOCX) or portfolio URLs.
-- **Real-Time Status Tracking**: Track submitted application states (PENDING, APPROVED, REJECTED) from the personal dashboard.
+### 2. 🏢 Department Architecture
+- **Organizational Structuring**: Create and manage organizational departments with custom codes (`ENG`, `HR`, `FIN`, `MKT`).
+- **Department Leadership**: Assign designated department heads and track real-time active headcount.
 
-### Enterprise Security & Architecture
-- **Dual-Token JWT Authentication**: Short-lived Access Tokens paired with secure, httpOnly Refresh Token cookies.
-- **BCrypt Password Hashing**: Passwords hashed with standard enterprise cryptographic salt rounds.
-- **Rate-Limiting Protection**: In-memory token bucket rate limiting on authentication and registration endpoints to prevent brute-force attacks.
-- **Role-Based Access Control (RBAC)**: Strict separation between EMPLOYER and JOB_SEEKER authorities.
+### 3. ⏱️ Attendance & Time Tracking
+- **Smart Shift Punch Clock**: Real-time punch-in / punch-out mechanism with daily duration calculation.
+- **Overtime & Anomaly Detection**: Tracks total working hours and flags deviations.
+- **Enterprise Attendance Logs**: Date-filtered audit logs across all company staff.
 
----
+### 4. 🌴 Leave Management & Approval Engine
+- **Multi-Category Leave Quotas**: Supports Annual, Sick, and Casual leave allocations.
+- **Role-Based Workflow**: Employees submit requests with reason notes; HR & Admins review, approve, or reject with real-time balance deductions.
 
-## System Architecture
+### 5. 💰 Payroll Processing & Payslip Engine
+- **Automated Batch Processing**: Calculates monthly payouts based on `Basic Salary + Allowances (15%) - Statutory Deductions (10%) = Net Payable`.
+- **Payment Lifecycle**: Track `PROCESSED` vs `PAID` statuses with disbursement dates.
+- **Printable Payslips**: Formal company-branded salary slips with detailed earnings/deductions breakdown and print capability.
 
-```
-[ Client Browser ]
-        |
-        v
-[ Next.js 14 Frontend ]  ---> (Vercel Edge: https://hirium.vercel.app)
-        |
-        | HTTPS REST Calls + Dual-Token JWT Auth
-        v
-[ Spring Boot 3 API ]    ---> (Render Container: https://hirium-backend.onrender.com)
-        |
-        | SSL Encrypted JDBC Pool (HikariCP)
-        v
-[ Neon PostgreSQL DB ]   ---> (Neon Serverless Cloud Database)
-```
+### 6. 💼 Recruitment & Talent Acquisition
+- **Public Job Board**: Search and filter active job openings with INR (₹) salary benchmarks and deadlines.
+- **Direct Candidate Applications**: Public applicants submit applications without requiring employee portal accounts.
+- **Cloudinary CDN Integration**: Resume / CV uploads (PDF/DOCX) stored securely on Cloudinary CDN with in-browser preview.
+- **Multi-Company Pipeline Isolation**: Strict tenant scoping ensuring companies only view their own candidate pipelines.
+- **Candidate Pipeline Tracking**: Review applicants and transition statuses (`PENDING`, `SHORTLISTED`, `HIRED`, `REJECTED`).
 
 ---
 
-## Technology Stack
+## 🛡️ Enterprise Security & Validation
 
-| Layer | Technologies & Tools |
+- **Strict Mobile Number Validation**:
+  - Rejects dummy numbers (e.g. `1234567890`, `0123456789`, `9876543210`).
+  - Rejects repeated single-digit numbers (e.g. `0000000000`, `1111111111`, `9999999999`).
+  - Enforces genuine 10-digit mobile numbers starting with digits `6, 7, 8, or 9`, optional `+91` prefix, or international E.164 formats.
+- **Enterprise Password Security Policy**:
+  - Minimum **8 characters** with mandatory uppercase, lowercase, numeric, and special character requirements.
+  - Interactive **Live Password Strength Meter** with color-coded progression bar.
+- **Dual-Token JWT & Tolerant Sessions**:
+  - Stateless HS256 JWT authentication with secure session persistence across browser refreshes.
+- **Role-Based Access Control (RBAC)**:
+  - `ADMIN` / `HR` / `EMPLOYER`: Full administrative access to Employees, Departments, Payroll, and Recruitment.
+  - `EMPLOYEE`: Access strictly limited to Overview, Attendance, Leaves, and Salary Payslips.
+
+---
+
+## 🏗️ System Architecture
+
+```
+[ Public Visitors & Candidates ]       [ Authenticated Employees / HR / Admins ]
+              │                                           │
+              └─────────────────────┬─────────────────────┘
+                                    ▼
+                         [ Next.js 14 Frontend ]
+                       (Vercel Edge: hirium.vercel.app)
+                                    │
+                                    │ HTTPS + Bearer JWT
+                                    ▼
+                         [ Spring Boot 3 API ]
+                    (Render: hirium-backend.onrender.com)
+                                    │
+                  ┌─────────────────┼─────────────────┐
+                  ▼                 ▼                 ▼
+          [ Neon PostgreSQL ] [ Gmail SMTP ]  [ Cloudinary CDN ]
+          (Serverless DB)     (Onboarding)    (Resume Storage)
+```
+
+---
+
+## 💻 Technology Stack
+
+| Layer | Technologies & Frameworks |
 | :--- | :--- |
-| **Frontend** | Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, TanStack Query (React Query), React Hook Form, Zod, Lucide Icons |
-| **Backend** | Java 17, Spring Boot 3, Spring Data JPA / Hibernate, Spring Security (JWT HS256), Bucket4j Rate Limiting |
-| **Database** | PostgreSQL on Neon Serverless with HikariCP Connection Pooling |
-| **Testing** | JUnit 5, MockMvc, AssertJ (40 automated unit & integration tests) |
-| **DevOps** | Docker, Docker Compose, Vercel, Render |
+| **Frontend** | Next.js 14 (App Router), React 18, TypeScript, Tailwind CSS, TanStack Query (React Query), React Hook Form, Zod, Lucide Icons, Zustand |
+| **Backend** | Java 17, Spring Boot 3, Spring Data JPA / Hibernate, Spring Security (JWT HS256), JavaMailSender, HikariCP |
+| **Database** | PostgreSQL on Neon Serverless with connection pooling |
+| **Cloud & Media** | Cloudinary CDN (Document / Resume storage), Gmail SMTP (Transactional emails) |
+| **Testing** | JUnit 5, MockMvc, AssertJ (**47 automated unit & integration tests**) |
+| **DevOps** | Docker, Multi-Stage Containerization, Vercel, Render |
 
 ---
 
-## Live Production Deployment
+## 🚀 Live Production Deployment
 
 - **Frontend URL**: [https://hirium.vercel.app](https://hirium.vercel.app)
 - **Backend API URL**: [https://hirium-backend.onrender.com](https://hirium-backend.onrender.com)
-- **Cloud Database**: Neon Serverless PostgreSQL (ap-southeast-1)
+- **Database**: Neon Serverless PostgreSQL (`ap-southeast-1`)
 
 ---
 
-## Local Development Setup
+## ⚙️ Local Development Setup
 
 ### Prerequisites
-- **Java 17+** (JDK 17 or higher)
+- **Java 17+** (JDK 17 or 21)
 - **Node.js 18+** & **npm**
 - **Git**
 
@@ -89,21 +127,22 @@ git clone https://github.com/Siddhesh-Codes/Hirium.git
 cd Hirium
 ```
 
-### 2. Configure Backend (src/main/resources/application.properties)
+### 2. Configure Backend (`src/main/resources/application.properties`)
 ```properties
+server.port=8080
 spring.datasource.url=jdbc:postgresql://localhost:5432/hrms_db
 spring.datasource.username=postgres
-spring.datasource.password=root
+spring.datasource.password=your_password
 spring.jpa.hibernate.ddl-auto=update
 jwt.secret=404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
-cors.allowed-origins=http://localhost:3000
+cors.allowed-origins=http://localhost:3000,https://hirium.vercel.app
 ```
 
 ### 3. Run Backend Service
 ```bash
 ./mvnw spring-boot:run
 ```
-*The Spring Boot API will start on `http://localhost:8080`.*
+*Backend API will run on `http://localhost:8080`.*
 
 ### 4. Run Frontend Service
 ```bash
@@ -111,74 +150,94 @@ cd frontend
 npm install
 npm run dev
 ```
-*The Next.js web application will start on `http://localhost:3000`.*
+*Frontend will run on `http://localhost:3000`.*
 
 ---
 
-## Automated Testing
+## 🧪 Automated Testing
 
-The backend includes a test suite covering repository constraints, controller serialization, security filters, rate limiting, and dual-token refresh cycles.
+The backend includes a comprehensive test suite covering all HRMS business logic, authentication, recruitment, payroll calculations, and security authorization.
 
 ```bash
-# Run backend test suite
+# Run the full test suite
 ./mvnw test
 ```
 
 ```
 [INFO] Results:
 [INFO] 
-[INFO] Tests run: 40, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 47, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] BUILD SUCCESS
 ```
 
 ---
 
-## API Reference
+## 📚 API Reference
 
-### Authentication (/api/auth)
+### Authentication (`/api/auth`)
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/auth/register/employer` | Public | Register employer organization |
-| `POST` | `/api/auth/register/jobseeker` | Public | Register candidate account |
-| `POST` | `/api/auth/login` | Public | Authenticate and issue JWT + refresh cookie |
-| `POST` | `/api/auth/refresh` | Public | Rotate access token via refresh cookie |
-| `POST` | `/api/auth/logout` | Authenticated | Invalidate refresh token session |
-| `GET` | `/api/auth/me` | Authenticated | Get current authenticated user profile |
+| `POST` | `/api/auth/register/employer` | Public | Register new organization with security validation |
+| `POST` | `/api/auth/register/jobseeker` | Public | Register candidate profile |
+| `POST` | `/api/auth/login` | Public | Authenticate user and issue JWT |
+| `POST` | `/api/auth/refresh` | Public | Refresh expired access token |
+| `POST` | `/api/auth/logout` | Authenticated | Terminate session |
+| `GET` | `/api/auth/me` | Authenticated | Get profile of logged-in user |
 
-### Job Advertisements (/api/jobAdvertisements)
+### Employee Directory (`/api/employees`)
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/jobAdvertisements/active` | Public | Get all active job listings |
-| `GET` | `/api/jobAdvertisements/getById?id={id}` | Public | Get specific job advertisement details |
-| `GET` | `/api/jobAdvertisements/getByEmployer?employerId={id}` | `EMPLOYER` | Get listings published by employer |
-| `POST` | `/api/jobAdvertisements/add` | `EMPLOYER` | Publish a new job advertisement |
-| `POST` | `/api/jobAdvertisements/toggleStatus?id={id}` | `EMPLOYER` | Toggle active/closed listing status |
+| `GET` | `/api/employees/getAll` | `HR`, `ADMIN`, `EMPLOYER` | Retrieve full employee list |
+| `GET` | `/api/employees/getById/{id}` | Authenticated | Get employee profile details |
+| `POST` | `/api/employees/add` | `HR`, `ADMIN`, `EMPLOYER` | Add employee & dispatch welcome email |
+| `PUT` | `/api/employees/update/{id}` | `HR`, `ADMIN`, `EMPLOYER` | Update employee profile |
+| `DELETE` | `/api/employees/delete/{id}` | `HR`, `ADMIN`, `EMPLOYER` | Remove employee and associated records |
+| `POST` | `/api/employees/change-password` | Authenticated | Change user account password |
 
-### Job Applications (/api/jobApplications)
+### Departments (`/api/departments`)
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `POST` | `/api/jobApplications/apply` | `JOB_SEEKER` | Submit candidate application with resume |
-| `GET` | `/api/jobApplications/getByAdvertisement?id={id}` | `EMPLOYER` | Get all candidates for a job listing |
-| `GET` | `/api/jobApplications/getByJobSeeker?id={id}` | `JOB_SEEKER` | Get candidate's application history |
-| `PATCH` | `/api/jobApplications/updateStatus` | `EMPLOYER` | Update candidate status (`APPROVED`/`REJECTED`) |
+| `GET` | `/api/departments/getAll` | Authenticated | List all departments with headcount |
+| `POST` | `/api/departments/add` | `HR`, `ADMIN`, `EMPLOYER` | Create new department |
+| `PUT` | `/api/departments/update/{id}` | `HR`, `ADMIN`, `EMPLOYER` | Update department details |
+| `DELETE` | `/api/departments/delete/{id}` | `HR`, `ADMIN`, `EMPLOYER` | Delete department |
 
-### Catalogs (/api/cities & /api/jobpositions)
+### Attendance (`/api/attendance`)
 | Method | Endpoint | Access | Description |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/cities/getAll` | Public | List all available cities |
-| `POST` | `/api/cities/add` | Authenticated | Quick-add a new city location |
-| `GET` | `/api/jobpositions/getAll` | Authenticated | List all position categories |
-| `POST` | `/api/jobpositions/add` | Authenticated | Quick-add a new position title |
+| `POST` | `/api/attendance/check-in` | `EMPLOYEE` | Clock in for daily shift |
+| `POST` | `/api/attendance/check-out` | `EMPLOYEE` | Clock out and calculate shift duration |
+| `GET` | `/api/attendance/employee/{id}` | Authenticated | Get employee attendance history |
+| `GET` | `/api/attendance/today` | `HR`, `ADMIN`, `EMPLOYER` | View today's organizational attendance |
+
+### Leave Management (`/api/leaves`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/leaves/apply` | `EMPLOYEE` | Submit leave application |
+| `POST` | `/api/leaves/review` | `HR`, `ADMIN`, `EMPLOYER` | Approve or reject leave request |
+| `GET` | `/api/leaves/employee/{id}` | Authenticated | Get employee leave history & balances |
+| `GET` | `/api/leaves/pending` | `HR`, `ADMIN`, `EMPLOYER` | View pending leave applications |
+
+### Payroll Engine (`/api/payroll`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/payroll/generate` | `HR`, `ADMIN`, `EMPLOYER` | Run monthly salary calculation batch |
+| `GET` | `/api/payroll/getAll` | `HR`, `ADMIN`, `EMPLOYER` | View all processed payroll records |
+| `GET` | `/api/payroll/employee/{id}` | Authenticated | Get employee salary payslips |
+| `PUT` | `/api/payroll/{id}/mark-paid` | `HR`, `ADMIN`, `EMPLOYER` | Mark payroll record as paid |
+
+### Recruitment & Talent Acquisition (`/api/jobAdvertisements` & `/api/applications`)
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/jobAdvertisements/getAll` | Public | List all active job vacancies |
+| `POST` | `/api/jobAdvertisements/add` | `HR`, `ADMIN`, `EMPLOYER` | Post a new job opening |
+| `POST` | `/api/applications/apply` | Public | Submit candidate job application with resume |
+| `GET` | `/api/applications/by-advertisement/{id}` | `HR`, `ADMIN`, `EMPLOYER` | Get candidate applications for a job |
+| `POST` | `/api/applications/update-status` | `HR`, `ADMIN`, `EMPLOYER` | Update candidate status (`HIRED`, `REJECTED`) |
 
 ---
 
-## Security Policy
-
-Please refer to [SECURITY.md](SECURITY.md) for full details on threat modeling, cryptographic practices, session management, and vulnerability reporting.
-
----
-
-## License
+## 📄 License
 
 This project is licensed under the MIT License.

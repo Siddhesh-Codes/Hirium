@@ -29,6 +29,7 @@ import {
 import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { Modal } from '@/components/ui/Modal';
+import { isValidPhoneNumber } from '@/schemas/authSchemas';
 
 export default function JobDetailPage() {
   const params = useParams();
@@ -344,6 +345,12 @@ export default function JobDetailPage() {
             if (!candidateName.trim() || !candidateEmail.trim()) {
               toastError('Required Fields', 'Please provide your full name and email address.');
               return;
+            }
+            if (candidatePhone && candidatePhone.trim() !== '') {
+              if (!isValidPhoneNumber(candidatePhone)) {
+                toastError('Invalid Mobile Number', 'Please enter a valid 10-digit mobile number (e.g. 9876543210). Sequences like 1234567890 are not allowed.');
+                return;
+              }
             }
             const finalResume = cloudinaryUrl || resumeUrl || 'Direct Candidate Application';
             applyMutation.mutate(finalResume);

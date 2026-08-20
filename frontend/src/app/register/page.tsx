@@ -21,7 +21,9 @@ import {
   ArrowRight,
   Eye,
   EyeOff,
-  ShieldCheck
+  ShieldCheck,
+  Check,
+  X
 } from 'lucide-react';
 import Logo from '@/components/ui/Logo';
 
@@ -36,7 +38,29 @@ export default function RegisterPage() {
 
   const form = useForm<EmployerRegisterFormData>({
     resolver: zodResolver(employerRegisterSchema),
+    mode: 'onChange',
   });
+
+  const passwordVal = form.watch('password') || '';
+
+  // Password requirements calculation
+  const hasMinLen = passwordVal.length >= 8;
+  const hasUpper = /[A-Z]/.test(passwordVal);
+  const hasLower = /[a-z]/.test(passwordVal);
+  const hasNumber = /\d/.test(passwordVal);
+  const hasSpecial = /[@$!%*?&#^()_+\-=\[\]{};':"\\|,.<>\/?]/.test(passwordVal);
+
+  const passedCount = [hasMinLen, hasUpper && hasLower, hasNumber, hasSpecial].filter(Boolean).length;
+
+  const getStrengthMeta = () => {
+    if (!passwordVal) return { label: 'Enter password', color: 'bg-border', width: 'w-0' };
+    if (passedCount === 1) return { label: 'Weak', color: 'bg-semantic-danger', width: 'w-1/4' };
+    if (passedCount === 2) return { label: 'Fair', color: 'bg-amber-500', width: 'w-2/4' };
+    if (passedCount === 3) return { label: 'Good', color: 'bg-blue-500', width: 'w-3/4' };
+    return { label: 'Strong & Secure', color: 'bg-semantic-success', width: 'w-full' };
+  };
+
+  const strengthMeta = getStrengthMeta();
 
   const onSubmit = async (data: EmployerRegisterFormData) => {
     setIsSubmitting(true);
@@ -93,7 +117,7 @@ export default function RegisterPage() {
               <input
                 type="text"
                 {...form.register('companyName')}
-                placeholder="Acme Technologies Pvt Ltd"
+                placeholder="Tata Strive Pvt Ltd"
                 className="w-full pl-10 pr-3.5 py-2.5 text-xs border border-border rounded-lg bg-surface-subtle/50 hover:bg-surface-subtle focus:bg-white text-ink placeholder:text-muted/70 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
               />
             </div>
@@ -111,7 +135,7 @@ export default function RegisterPage() {
               <input
                 type="url"
                 {...form.register('companyWebPage')}
-                placeholder="https://acme.com"
+                placeholder="https://tatastrive.com"
                 className="w-full pl-10 pr-3.5 py-2.5 text-xs border border-border rounded-lg bg-surface-subtle/50 hover:bg-surface-subtle focus:bg-white text-ink placeholder:text-muted/70 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
               />
             </div>
@@ -130,7 +154,7 @@ export default function RegisterPage() {
                 <input
                   type="email"
                   {...form.register('email')}
-                  placeholder="admin@acme.com"
+                  placeholder="hr@tatastrive.com"
                   className="w-full pl-10 pr-3.5 py-2.5 text-xs border border-border rounded-lg bg-surface-subtle/50 hover:bg-surface-subtle focus:bg-white text-ink placeholder:text-muted/70 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
                 />
               </div>
@@ -142,20 +166,22 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-ink mb-1.5">Contact Phone *</label>
+              <label className="block text-xs font-semibold text-ink mb-1.5">Contact Mobile Number *</label>
               <div className="relative">
                 <Phone className="w-4 h-4 text-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  type="text"
+                  type="tel"
                   {...form.register('phoneNumber')}
-                  placeholder="+91 9876543210"
+                  placeholder="9876543210"
                   className="w-full pl-10 pr-3.5 py-2.5 text-xs border border-border rounded-lg bg-surface-subtle/50 hover:bg-surface-subtle focus:bg-white text-ink placeholder:text-muted/70 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all"
                 />
               </div>
-              {form.formState.errors.phoneNumber && (
+              {form.formState.errors.phoneNumber ? (
                 <p className="text-[11px] text-semantic-danger mt-1 font-medium">
                   {form.formState.errors.phoneNumber.message}
                 </p>
+              ) : (
+                <p className="text-[10px] text-muted mt-1">10-digit mobile number starting with 6, 7, 8, or 9</p>
               )}
             </div>
           </div>
@@ -168,7 +194,7 @@ export default function RegisterPage() {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   {...form.register('password')}
-                  placeholder="••••••••"
+                  placeholder="e.g. Tata@2026Secure!"
                   className="w-full pl-10 pr-10 py-2.5 text-xs border border-border rounded-lg bg-surface-subtle/50 hover:bg-surface-subtle focus:bg-white text-ink placeholder:text-muted/70 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all font-mono"
                 />
                 <button
@@ -199,7 +225,7 @@ export default function RegisterPage() {
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   {...form.register('confirmPassword')}
-                  placeholder="••••••••"
+                  placeholder="Repeat password"
                   className="w-full pl-10 pr-10 py-2.5 text-xs border border-border rounded-lg bg-surface-subtle/50 hover:bg-surface-subtle focus:bg-white text-ink placeholder:text-muted/70 focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/15 transition-all font-mono"
                 />
                 <button
@@ -223,6 +249,38 @@ export default function RegisterPage() {
               )}
             </div>
           </div>
+
+          {/* Real-time Password Security Checklist & Visual Meter */}
+          {passwordVal.length > 0 && (
+            <div className="p-3 bg-surface-subtle/70 border border-border rounded-lg space-y-2 animate-in fade-in duration-200">
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-muted font-medium">Password Security:</span>
+                <span className="font-semibold text-ink">{strengthMeta.label}</span>
+              </div>
+              <div className="w-full h-1.5 bg-border/50 rounded-full overflow-hidden">
+                <div className={`h-full transition-all duration-300 ${strengthMeta.color} ${strengthMeta.width}`} />
+              </div>
+
+              <div className="grid grid-cols-2 gap-x-2 gap-y-1 pt-1 text-[10px]">
+                <div className={`flex items-center gap-1.5 ${hasMinLen ? 'text-semantic-success' : 'text-muted'}`}>
+                  {hasMinLen ? <Check className="w-3 h-3" /> : <X className="w-3 h-3 text-muted/60" />}
+                  <span>Min 8 characters</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${hasUpper && hasLower ? 'text-semantic-success' : 'text-muted'}`}>
+                  {hasUpper && hasLower ? <Check className="w-3 h-3" /> : <X className="w-3 h-3 text-muted/60" />}
+                  <span>Uppercase & Lowercase</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-semantic-success' : 'text-muted'}`}>
+                  {hasNumber ? <Check className="w-3 h-3" /> : <X className="w-3 h-3 text-muted/60" />}
+                  <span>At least 1 number</span>
+                </div>
+                <div className={`flex items-center gap-1.5 ${hasSpecial ? 'text-semantic-success' : 'text-muted'}`}>
+                  {hasSpecial ? <Check className="w-3 h-3" /> : <X className="w-3 h-3 text-muted/60" />}
+                  <span>Special character (!@#$)</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <button
             type="submit"

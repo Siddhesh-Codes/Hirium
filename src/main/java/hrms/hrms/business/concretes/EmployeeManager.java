@@ -94,6 +94,13 @@ public class EmployeeManager implements EmployeeService {
 
     @Override
     public Result add(EmployeeRequest request) {
+        if (request.getPhone() != null && !request.getPhone().isBlank()) {
+            String phoneDigits = request.getPhone().replaceAll("[\\s\\-().+]", "");
+            if (phoneDigits.length() < 10 || phoneDigits.length() > 14 || phoneDigits.contains("1234567890") || phoneDigits.matches("^(\\d)\\1{9,}$")) {
+                return new ErrorResult("Invalid employee mobile number format. Must be a valid 10-digit mobile number.");
+            }
+        }
+
         if (employeeDao.findByEmail(request.getEmail()).isPresent()) {
             return new ErrorResult("Email is already in use by another employee.");
         }

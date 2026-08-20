@@ -30,6 +30,7 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { TableSkeleton } from '@/components/ui/TableSkeleton';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { isValidPhoneNumber } from '@/schemas/authSchemas';
 
 export default function EmployeesPage() {
   const queryClient = useQueryClient();
@@ -370,6 +371,12 @@ export default function EmployeesPage() {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
+                if (formData.phone && formData.phone.trim() !== '+91' && formData.phone.trim() !== '') {
+                  if (!isValidPhoneNumber(formData.phone)) {
+                    toastError('Invalid Mobile Number', 'Please enter a valid 10-digit mobile number (e.g. 9876543210). Sequences like 1234567890 are not allowed.');
+                    return;
+                  }
+                }
                 saveMutation.mutate();
               }}
               className="p-5 sm:p-6 space-y-4"
